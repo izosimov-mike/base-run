@@ -458,6 +458,8 @@ export function BaseGame() {
   // Game contract hook
   const {
     isConnected,
+    isWalletReady,
+    isConnecting,
     prizePool,
     ticketCount,
     currentTicket,
@@ -641,7 +643,7 @@ export function BaseGame() {
   }, [gameState.gameStatus, phaserLoaded, createSparkles])
 
   const handlePlayClick = useCallback(() => {
-    if (!phaserLoaded || !isConnected) return
+    if (!phaserLoaded || !isWalletReady) return
     
     if (flowState === "initial" || flowState === "lost" || flowState === "claimed") {
       if (localTicketCount > 0) {
@@ -654,7 +656,7 @@ export function BaseGame() {
       setFlowState("starting_attempt")
       startAttempt()
     }
-  }, [phaserLoaded, isConnected, flowState, localTicketCount, startAttempt])
+  }, [phaserLoaded, isWalletReady, flowState, localTicketCount, startAttempt])
 
   const handleBuyTickets = useCallback(async (amount: 1 | 10 | 50) => {
     const success = await buyTickets(amount)
@@ -941,8 +943,8 @@ export function BaseGame() {
         </div>
       )}
 
-      {/* Not Connected Warning - Casino Style */}
-      {!isConnected && phaserLoaded && (
+      {/* Not Connected / Connecting Warning - Casino Style */}
+      {!isWalletReady && phaserLoaded && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-40 p-4">
           <div 
             className="border-2 border-yellow-500 px-6 py-4 rounded-xl shadow-lg text-center"
@@ -952,8 +954,21 @@ export function BaseGame() {
               fontFamily: 'Montserrat, sans-serif'
             }}
           >
-            <p className="font-bold text-lg" style={{ color: '#FFD700' }}>⚠️ Wallet not connected</p>
-            <p style={{ color: '#C0C0C0' }}>Please connect your wallet to play</p>
+            {isConnecting ? (
+              <>
+                <div 
+                  className="animate-spin inline-block w-8 h-8 border-4 rounded-full mb-3"
+                  style={{ borderColor: '#FFD700', borderTopColor: 'transparent' }}
+                ></div>
+                <p className="font-bold text-lg" style={{ color: '#FFD700' }}>Connecting wallet...</p>
+                <p style={{ color: '#C0C0C0' }}>Please wait</p>
+              </>
+            ) : (
+              <>
+                <p className="font-bold text-lg" style={{ color: '#FFD700' }}>⚠️ Wallet not connected</p>
+                <p style={{ color: '#C0C0C0' }}>Please connect your wallet to play</p>
+              </>
+            )}
           </div>
         </div>
       )}

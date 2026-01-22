@@ -26,9 +26,12 @@ export interface ClaimData {
 }
 
 export function useGameContract() {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, isConnecting } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
+  
+  // Check if wallet is fully ready (connected and not in connecting state)
+  const isWalletReady = isConnected && !isConnecting && !!address
   
   const [currentTicket, setCurrentTicket] = useState<GameTicket | null>(null)
   const [claimData, setClaimData] = useState<ClaimData | null>(null)
@@ -90,8 +93,8 @@ export function useGameContract() {
 
   // Buy tickets
   const buyTickets = useCallback(async (amount: 1 | 10 | 50) => {
-    if (!isConnected || !address) {
-      setError('Please connect your wallet')
+    if (!isWalletReady) {
+      setError('Wallet is connecting. Please wait...')
       return false
     }
 
@@ -132,14 +135,14 @@ export function useGameContract() {
       setIsProcessing(false)
       return false
     }
-  }, [isConnected, address, ensureBaseNetwork, writeContract])
+  }, [isWalletReady, ensureBaseNetwork, writeContract])
 
   // Start attempt (creates ticket)
   // Note: We don't check attemptBalance here to avoid race conditions after buying tickets
   // The contract will revert with NoAttemptsLeft if user has no tickets
   const startAttempt = useCallback(async () => {
-    if (!isConnected || !address) {
-      setError('Please connect your wallet')
+    if (!isWalletReady) {
+      setError('Wallet is connecting. Please wait...')
       return null
     }
 
@@ -167,7 +170,7 @@ export function useGameContract() {
       setIsProcessing(false)
       return null
     }
-  }, [isConnected, address, ensureBaseNetwork, writeContract])
+  }, [isWalletReady, ensureBaseNetwork, writeContract])
 
   // Parse AttemptStarted event from transaction receipt
   useEffect(() => {
@@ -256,8 +259,8 @@ export function useGameContract() {
 
   // Claim prize
   const claimPrize = useCallback(async () => {
-    if (!claimData || !isConnected || !address) {
-      setError('No claim data available')
+    if (!claimData || !isWalletReady) {
+      setError('No claim data available or wallet not ready')
       return false
     }
 
@@ -292,7 +295,7 @@ export function useGameContract() {
       setIsProcessing(false)
       return false
     }
-  }, [claimData, isConnected, address, ensureBaseNetwork, writeContract])
+  }, [claimData, isWalletReady, ensureBaseNetwork, writeContract])
 
   // Reset game state
   const resetGame = useCallback(() => {
@@ -309,6 +312,8 @@ export function useGameContract() {
   return {
     // State
     isConnected,
+    isWalletReady,
+    isConnecting,
     address,
     prizePool: formattedPrizePool,
     ticketCount,
