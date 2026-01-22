@@ -135,14 +135,11 @@ export function useGameContract() {
   }, [isConnected, address, ensureBaseNetwork, writeContract])
 
   // Start attempt (creates ticket)
+  // Note: We don't check attemptBalance here to avoid race conditions after buying tickets
+  // The contract will revert with NoAttemptsLeft if user has no tickets
   const startAttempt = useCallback(async () => {
     if (!isConnected || !address) {
       setError('Please connect your wallet')
-      return null
-    }
-
-    if (!attemptBalance || attemptBalance === 0n) {
-      setError('No tickets available. Please buy tickets first.')
       return null
     }
 
@@ -170,7 +167,7 @@ export function useGameContract() {
       setIsProcessing(false)
       return null
     }
-  }, [isConnected, address, attemptBalance, ensureBaseNetwork, writeContract])
+  }, [isConnected, address, ensureBaseNetwork, writeContract])
 
   // Parse AttemptStarted event from transaction receipt
   useEffect(() => {
