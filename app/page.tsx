@@ -38,7 +38,7 @@ export default function Home() {
   }, [isSDKLoaded, isConnected, connectors, connect])
 
   return (
-    <main className="w-full h-screen overflow-hidden" style={{ backgroundColor: '#5b616e' }}>
+    <main className="w-full h-screen overflow-hidden" style={{ backgroundColor: '#eef0f3' }}>
       <BaseGame />
     </main>
   )

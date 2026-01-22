@@ -4,7 +4,7 @@
     "payload": "",
     "signature": ""
   },
-    "baseBuilder": {
+  "baseBuilder": {
     "allowedAddresses": ["0x459f852E759D4aC09Dfd7e310E7075801A2580C9"]
   },
   "miniapp": {
@@ -15,20 +15,17 @@
     "imageUrl": "https://base-run.vercel.app/background.png",
     "buttonTitle": "▶️ Play Now",
     "splashImageUrl": "https://base-run.vercel.app/splash.png",
-    "splashBackgroundColor": "#5b616e",
+    "splashBackgroundColor": "#eef0f3",
     "description": "Find your Base way",
     "primaryCategory": "games",
     "tags": ["game", "puzzle", "base", "farcaster"],
     "requiredChains": ["eip155:8453"],
     "requiredCapabilities": ["wallet.getEthereumProvider"],
-	"subtitle": "Find your Base way",
-	"ogTitle": "Find your Base way",
-	"ogDescription": "Find your Base way",
-    "heroImageUrl": "https://health-buddy-seven.vercel.app/images/promo.png"
-	"ogImageUrl": "https://health-buddy-seven.vercel.app/images/promo.png",
-    "tagline": "Grow Strong, Stay Happy",	
+    "subtitle": "Find your Base way",
+    "ogTitle": "Find your Base way",
+    "ogDescription": "Find your Base way",
+    "heroImageUrl": "https://base-run.vercel.app/background.png",
+    "ogImageUrl": "https://base-run.vercel.app/background.png",
+    "tagline": "Find your Base way"
   }
 }
-
-
-

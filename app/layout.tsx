@@ -16,7 +16,7 @@ const miniAppEmbed = {
       name: "Base Run",
       url: "https://base-run.vercel.app",
       splashImageUrl: "https://base-run.vercel.app/icon.svg",
-      splashBackgroundColor: "#5b616e"
+      splashBackgroundColor: "#eef0f3"
     }
   }
 }
@@ -59,7 +59,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`} style={{ fontFamily: 'Stengazeta, sans-serif' }}>
+      <body className={`font-sans antialiased`} style={{ fontFamily: 'Montserrat, sans-serif' }}>
         <Script
           src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"
           strategy="beforeInteractive"

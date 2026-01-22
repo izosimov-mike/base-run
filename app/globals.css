@@ -91,8 +91,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Stengazeta', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Stengazeta', 'Courier New', monospace;
+  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Montserrat', 'Courier New', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -137,6 +137,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Stengazeta', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }

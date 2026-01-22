@@ -58,23 +58,24 @@ function createMainScene(Phaser: any) {
 
     create() {
       // Set background color for the game area
-      this.cameras.main.setBackgroundColor(0x5b616e)
+      this.cameras.main.setBackgroundColor(0xeef0f3)
       
       // Title
       this.add
-        .text(GAME_WIDTH / 2, 30, "Base Run", {
-          fontSize: "28px",
+        .text(GAME_WIDTH / 2, 35, "Base Run", {
+          fontSize: "42px",
           color: "#32353d",
-          fontFamily: "Stengazeta",
+          fontFamily: "Montserrat",
+          fontStyle: "bold",
         })
         .setOrigin(0.5)
 
       // Status text
       this.statusText = this.add
-        .text(GAME_WIDTH / 2, 65, "", {
-          fontSize: "14px",
+        .text(GAME_WIDTH / 2, 75, "", {
+          fontSize: "18px",
           color: "#0000FF",
-          fontFamily: "Stengazeta",
+          fontFamily: "Montserrat",
         })
         .setOrigin(0.5)
         .setVisible(false)
@@ -84,16 +85,17 @@ function createMainScene(Phaser: any) {
         .text(GAME_WIDTH / 2, 460, "", {
           fontSize: "36px",
           color: "#0000FF",
-          fontFamily: "Stengazeta",
+          fontFamily: "Montserrat",
+          fontStyle: "bold",
         })
         .setOrigin(0.5)
 
       // Footer text
       this.add
         .text(GAME_WIDTH / 2, 495, "Find your BASE way", {
-          fontSize: "14px",
+          fontSize: "28px",
           color: "#32353d",
-          fontFamily: "Stengazeta",
+          fontFamily: "Montserrat",
         })
         .setOrigin(0.5)
 
@@ -167,8 +169,8 @@ function createMainScene(Phaser: any) {
           const y = startY + rowIndex * rowSpacing + squareSize / 2
 
           const square = this.add
-            .rectangle(x, y, squareSize, squareSize, 0x32353d)
-            .setStrokeStyle(2, 0xB1B7C3)
+            .rectangle(x, y, squareSize, squareSize, 0xb8a581)
+            .setStrokeStyle(2, 0x8a7a5c)
             .setInteractive({ useHandCursor: true })
 
           square.setData("questionMark", null)
@@ -182,7 +184,7 @@ function createMainScene(Phaser: any) {
               rowIndex === this.gameState.currentRow &&
               !square.getData("revealed")
             ) {
-              square.setFillStyle(0xB8A581)
+              square.setFillStyle(0xd4c4a0)
               square.setScale(1.05)
             }
           })
@@ -192,7 +194,7 @@ function createMainScene(Phaser: any) {
               !square.getData("revealed") &&
               this.gameState.gameStatus !== "lost"
             ) {
-              square.setFillStyle(0x32353d)
+              square.setFillStyle(0xb8a581)
               square.setScale(1)
             }
           })
@@ -219,7 +221,7 @@ function createMainScene(Phaser: any) {
             ) {
               square.setStrokeStyle(2, 0x0000FF)
             } else {
-              square.setStrokeStyle(2, 0xB1B7C3)
+              square.setStrokeStyle(2, 0x8a7a5c)
             }
           }
         }
@@ -262,7 +264,7 @@ function createMainScene(Phaser: any) {
           .text(square.x, square.y, content.toUpperCase(), {
             fontSize: "24px",
             color: "#0000FF",
-            fontFamily: "Stengazeta",
+            fontFamily: "Montserrat",
             fontStyle: "bold",
           })
           .setOrigin(0.5)
@@ -314,7 +316,7 @@ function createMainScene(Phaser: any) {
                 .text(square.x, square.y, content.toUpperCase(), {
                   fontSize: "24px",
                   color: "#0000FF",
-                  fontFamily: "Stengazeta",
+                  fontFamily: "Montserrat",
                   fontStyle: "bold",
                 })
                 .setOrigin(0.5)
@@ -491,9 +493,9 @@ export function BaseGame() {
 
     const loadFont = async () => {
       try {
-        if (document.fonts.check('400 16px Stengazeta')) return
+        if (document.fonts.check('400 16px Montserrat')) return
         
-        const font = new FontFace('Stengazeta', 'url(/fonts/Stengazeta-Regular.ttf)', {
+        const font = new FontFace('Montserrat', 'url(/fonts/Montserrat-Regular.ttf)', {
           weight: '400',
           style: 'normal',
         })
@@ -501,7 +503,7 @@ export function BaseGame() {
         document.fonts.add(font)
         await document.fonts.ready
       } catch (error) {
-        console.warn('Failed to load Stengazeta font:', error)
+        console.warn('Failed to load Montserrat font:', error)
       }
     }
 
@@ -509,7 +511,7 @@ export function BaseGame() {
       if (typeof Phaser !== "undefined" && containerRef.current && !gameRef.current) {
         await loadFont()
         
-        if (!document.fonts.check('400 16px Stengazeta')) {
+        if (!document.fonts.check('400 16px Montserrat')) {
           await new Promise(resolve => setTimeout(resolve, 200))
           await loadFont()
         }
@@ -521,7 +523,7 @@ export function BaseGame() {
           width: GAME_WIDTH,
           height: GAME_HEIGHT,
           parent: containerRef.current,
-          backgroundColor: 0x5b616e,
+          backgroundColor: 0xeef0f3,
           scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -665,22 +667,22 @@ export function BaseGame() {
     <div 
       ref={wrapperRef}
       className="flex flex-col w-full h-full min-h-screen"
-      style={{ backgroundColor: '#5b616e' }}
+      style={{ backgroundColor: '#eef0f3', fontFamily: 'Montserrat, sans-serif' }}
     >
       {/* Header with Prize Pool and Tickets */}
       <div className="flex justify-between items-center px-3 py-2 flex-shrink-0">
         {/* Prize Pool */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Prize Pool</div>
-          <div className="text-sm font-bold text-blue-600">
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
+          <div className="text-[20px] text-gray-500 uppercase tracking-wide font-semibold">Prize Pool</div>
+          <div className="text-[28px] font-bold text-blue-600">
             {parseFloat(prizePool).toFixed(5)} ETH
           </div>
         </div>
 
         {/* Tickets */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Tickets</div>
-          <div className="text-sm font-bold text-green-600">
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
+          <div className="text-[20px] text-gray-500 uppercase tracking-wide font-semibold">Tickets</div>
+          <div className="text-[28px] font-bold text-green-600">
             🎟️ {localTicketCount}
           </div>
         </div>
@@ -694,12 +696,12 @@ export function BaseGame() {
       />
 
       {/* Control Buttons */}
-      <div className="flex gap-2 justify-center px-3 py-2 flex-shrink-0">
+      <div className="flex gap-3 justify-center px-3 py-3 flex-shrink-0">
         <button
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="px-4 py-2 text-base font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          style={{ backgroundColor: '#eef0f3', color: '#0A0B0D' }}
+          className="px-6 py-3 text-[32px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+          style={{ backgroundColor: '#b8a581', color: '#32353d' }}
         >
           🔀 Shuffle
         </button>
@@ -707,10 +709,10 @@ export function BaseGame() {
         <button
           onClick={handleMainButtonClick}
           disabled={isButtonDisabled()}
-          className="px-6 py-2 text-base font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-8 py-3 text-[32px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
           style={{ 
-            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#eef0f3', 
-            color: flowState === "won" && claimData ? '#FFFFFF' : '#0A0B0D'
+            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#b8a581', 
+            color: flowState === "won" && claimData ? '#FFFFFF' : '#32353d'
           }}
         >
           {getButtonText()}
