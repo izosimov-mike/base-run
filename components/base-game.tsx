@@ -169,8 +169,8 @@ function createMainScene(Phaser: any) {
           const y = startY + rowIndex * rowSpacing + squareSize / 2
 
           const square = this.add
-            .rectangle(x, y, squareSize, squareSize, 0xb8a581)
-            .setStrokeStyle(2, 0x8a7a5c)
+            .rectangle(x, y, squareSize, squareSize, 0xb6f569)
+            .setStrokeStyle(2, 0x8fc04a)
             .setInteractive({ useHandCursor: true })
 
           square.setData("questionMark", null)
@@ -184,7 +184,7 @@ function createMainScene(Phaser: any) {
               rowIndex === this.gameState.currentRow &&
               !square.getData("revealed")
             ) {
-              square.setFillStyle(0xd4c4a0)
+              square.setFillStyle(0xc8f77a)
               square.setScale(1.05)
             }
           })
@@ -194,7 +194,7 @@ function createMainScene(Phaser: any) {
               !square.getData("revealed") &&
               this.gameState.gameStatus !== "lost"
             ) {
-              square.setFillStyle(0xb8a581)
+              square.setFillStyle(0xb6f569)
               square.setScale(1)
             }
           })
@@ -221,7 +221,7 @@ function createMainScene(Phaser: any) {
             ) {
               square.setStrokeStyle(2, 0x0000FF)
             } else {
-              square.setStrokeStyle(2, 0x8a7a5c)
+              square.setStrokeStyle(2, 0x8fc04a)
             }
           }
         }
@@ -701,7 +701,7 @@ export function BaseGame() {
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
           className="px-6 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-          style={{ backgroundColor: '#b8a581', color: '#0a0b0d' }}
+          style={{ backgroundColor: '#b6f569', color: '#0a0b0d' }}
         >
           🔀 Shuffle
         </button>
@@ -711,7 +711,7 @@ export function BaseGame() {
           disabled={isButtonDisabled()}
           className="px-8 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
           style={{ 
-            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#b8a581', 
+            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#b6f569', 
             color: flowState === "won" && claimData ? '#FFFFFF' : '#0a0b0d'
           }}
         >
