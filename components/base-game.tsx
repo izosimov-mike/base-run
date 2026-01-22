@@ -57,9 +57,8 @@ function createMainScene(Phaser: any) {
     }
 
     create() {
-      // Make Phaser background transparent to show CSS gradient behind
-      this.cameras.main.setBackgroundColor(0x000000)
-      this.cameras.main.transparent = true
+      // Make Phaser background fully transparent to show CSS gradient behind
+      // Don't set any background color - let the canvas be transparent
       
       // Title - Gold with shadow
       const title = this.add
@@ -773,11 +772,14 @@ export function BaseGame() {
         </div>
       </div>
 
-      {/* Game Container - flexible area */}
+      {/* Game Container - flexible area with gradient background */}
       <div 
         ref={containerRef}
         className="flex-grow flex items-center justify-center"
-        style={{ minHeight: '400px' }}
+        style={{ 
+          minHeight: '400px',
+          background: 'linear-gradient(to bottom, #121212, #0D47A1)'
+        }}
       />
 
       {/* Control Buttons */}
@@ -785,8 +787,9 @@ export function BaseGame() {
         <button
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="px-6 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          className="py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
           style={{ 
+            width: '140px',
             background: 'linear-gradient(135deg, #00BFFF, #0099CC)',
             color: '#FFFFFF',
             boxShadow: '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
@@ -799,8 +802,9 @@ export function BaseGame() {
         <button
           onClick={handleMainButtonClick}
           disabled={isButtonDisabled()}
-          className="px-8 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          className="py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
           style={{ 
+            width: '140px',
             background: flowState === "won" && claimData 
               ? 'linear-gradient(135deg, #66C800, #4CAF50)' 
               : 'linear-gradient(135deg, #FF4136, #C62828)',
