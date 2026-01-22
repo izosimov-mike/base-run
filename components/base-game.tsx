@@ -7,8 +7,9 @@ declare global {
   var Phaser: any
 }
 
-const GAME_WIDTH = 1200
-const GAME_HEIGHT = 800
+// Optimized for mini-app viewport (424x695 on web)
+const GAME_WIDTH = 400
+const GAME_HEIGHT = 520
 
 const LETTERS = ["b", "a", "s", "e"]
 const DEFAULT_ROW_SIZES = [2, 3, 4, 5]
@@ -21,17 +22,16 @@ interface GameState {
   letterPositions: number[]
 }
 
-// Game flow states
 type GameFlowState = 
-  | "initial"           // Show Play button
-  | "buy_tickets"       // Show ticket purchase options
-  | "ready_to_play"     // Has tickets, ready to start attempt
-  | "starting_attempt"  // Signing startAttempt transaction
-  | "playing"           // Game in progress
-  | "won"               // Game won, need to claim
-  | "claiming"          // Claiming prize
-  | "claimed"           // Prize claimed successfully
-  | "lost"              // Game lost
+  | "initial"
+  | "buy_tickets"
+  | "ready_to_play"
+  | "starting_attempt"
+  | "playing"
+  | "won"
+  | "claiming"
+  | "claimed"
+  | "lost"
 
 function createMainScene(Phaser: any) {
   class MainScene extends Phaser.Scene {
@@ -57,12 +57,13 @@ function createMainScene(Phaser: any) {
     }
 
     create() {
-      this.cameras.main.clearBeforeRender = false
+      // Set background color for the game area
+      this.cameras.main.setBackgroundColor(0x5b616e)
       
       // Title
       this.add
-        .text(GAME_WIDTH / 2, 50, "Base Run", {
-          fontSize: "48px",
+        .text(GAME_WIDTH / 2, 30, "Base Run", {
+          fontSize: "28px",
           color: "#32353d",
           fontFamily: "Stengazeta",
         })
@@ -70,8 +71,8 @@ function createMainScene(Phaser: any) {
 
       // Status text
       this.statusText = this.add
-        .text(GAME_WIDTH / 2, 120, "", {
-          fontSize: "24px",
+        .text(GAME_WIDTH / 2, 65, "", {
+          fontSize: "14px",
           color: "#0000FF",
           fontFamily: "Stengazeta",
         })
@@ -80,9 +81,18 @@ function createMainScene(Phaser: any) {
 
       // Revealed letters display
       this.revealedText = this.add
-        .text(GAME_WIDTH / 2, 640, "", {
-          fontSize: "64px",
+        .text(GAME_WIDTH / 2, 460, "", {
+          fontSize: "36px",
           color: "#0000FF",
+          fontFamily: "Stengazeta",
+        })
+        .setOrigin(0.5)
+
+      // Footer text
+      this.add
+        .text(GAME_WIDTH / 2, 495, "Find your BASE way", {
+          fontSize: "14px",
+          color: "#32353d",
           fontFamily: "Stengazeta",
         })
         .setOrigin(0.5)
@@ -103,8 +113,8 @@ function createMainScene(Phaser: any) {
       this.squares = []
       this.squareContents = []
       
-      const gameAreaYStart = 150
-      const gameAreaYEnd = 670
+      const gameAreaYStart = 80
+      const gameAreaYEnd = 450
       const textsToDestroy: any[] = []
       this.children.list.forEach((child: any) => {
         if (child.type === 'Text' && 
@@ -141,10 +151,10 @@ function createMainScene(Phaser: any) {
     }
 
     drawSquares() {
-      const startY = 180
-      const rowSpacing = 120
-      const squareSize = 80
-      const gap = 20
+      const startY = 100
+      const rowSpacing = 85
+      const squareSize = 55
+      const gap = 12
 
       for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
         const rowSize = this.gameState.rowSizes[rowIndex]
@@ -158,7 +168,7 @@ function createMainScene(Phaser: any) {
 
           const square = this.add
             .rectangle(x, y, squareSize, squareSize, 0x32353d)
-            .setStrokeStyle(3, 0xB1B7C3)
+            .setStrokeStyle(2, 0xB1B7C3)
             .setInteractive({ useHandCursor: true })
 
           square.setData("questionMark", null)
@@ -207,9 +217,9 @@ function createMainScene(Phaser: any) {
               rowIndex === this.gameState.currentRow &&
               this.gameState.gameStatus === "playing"
             ) {
-              square.setStrokeStyle(3, 0x0000FF)
+              square.setStrokeStyle(2, 0x0000FF)
             } else {
-              square.setStrokeStyle(3, 0xB1B7C3)
+              square.setStrokeStyle(2, 0xB1B7C3)
             }
           }
         }
@@ -235,14 +245,13 @@ function createMainScene(Phaser: any) {
         square.setFillStyle(0xFC401F)
         this.add
           .text(square.x, square.y, "💀", {
-            fontSize: "55px",
+            fontSize: "32px",
             fontFamily: "Arial",
           })
           .setOrigin(0.5)
-          .setPadding(0, 0, 0, 0)
 
         this.gameState.gameStatus = "lost"
-        this.statusText.setText("💀 GAME OVER! You hit a skull!")
+        this.statusText.setText("💀 GAME OVER!")
         this.statusText.setColor("#FC401F")
         this.statusText.setVisible(true)
 
@@ -251,7 +260,7 @@ function createMainScene(Phaser: any) {
         square.setFillStyle(0xEEF0F3)
         const letterText = this.add
           .text(square.x, square.y, content.toUpperCase(), {
-            fontSize: "40px",
+            fontSize: "24px",
             color: "#0000FF",
             fontFamily: "Stengazeta",
             fontStyle: "bold",
@@ -264,14 +273,14 @@ function createMainScene(Phaser: any) {
 
         if (this.gameState.currentRow === 3) {
           this.gameState.gameStatus = "won"
-          this.statusText.setText("🎉 YOU WIN! You spelled BASE!")
+          this.statusText.setText("🎉 YOU WIN!")
           this.statusText.setColor("#66C800")
           this.statusText.setVisible(true)
 
           this.createCelebration()
         } else {
           this.gameState.currentRow++
-          this.statusText.setText(`Row ${this.gameState.currentRow + 1}: Find the letter "${LETTERS[this.gameState.currentRow].toUpperCase()}"`)
+          this.statusText.setText(`Find "${LETTERS[this.gameState.currentRow].toUpperCase()}"`)
           this.statusText.setVisible(true)
           this.highlightCurrentRow()
         }
@@ -294,17 +303,16 @@ function createMainScene(Phaser: any) {
               square.setFillStyle(0xFC401F)
               this.add
                 .text(square.x, square.y, "💀", {
-                  fontSize: "55px",
+                  fontSize: "32px",
                   fontFamily: "Arial",
                 })
                 .setOrigin(0.5)
-                .setPadding(0, 0, 0, 0)
                 .setAlpha(0.5)
             } else {
               square.setFillStyle(0xEEF0F3)
               this.add
                 .text(square.x, square.y, content.toUpperCase(), {
-                  fontSize: "40px",
+                  fontSize: "24px",
                   color: "#0000FF",
                   fontFamily: "Stengazeta",
                   fontStyle: "bold",
@@ -318,20 +326,20 @@ function createMainScene(Phaser: any) {
     }
 
     createCelebration() {
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 30; i++) {
         const x = Phaser.Math.Between(0, GAME_WIDTH)
         const y = Phaser.Math.Between(0, GAME_HEIGHT)
         const colors = [0x66C800, 0xFFD12F, 0x0000FF, 0x3C8AFF, 0xFEA8CD]
         const particle = this.add
-          .circle(x, -20, Phaser.Math.Between(5, 15), Phaser.Math.RND.pick(colors))
+          .circle(x, -20, Phaser.Math.Between(3, 10), Phaser.Math.RND.pick(colors))
           .setAlpha(0.8)
 
         this.tweens.add({
           targets: particle,
           y: y,
           alpha: 0,
-          duration: Phaser.Math.Between(1000, 2000),
-          delay: Phaser.Math.Between(0, 500),
+          duration: Phaser.Math.Between(800, 1500),
+          delay: Phaser.Math.Between(0, 400),
           ease: "Quad.easeOut",
         })
       }
@@ -361,7 +369,7 @@ function createMainScene(Phaser: any) {
       this.gameState.revealedLetters = []
       this.revealedText.setText("")
 
-      this.statusText.setText('Row 1: Find the letter "B"')
+      this.statusText.setText('Find "B"')
       this.statusText.setColor("#0000FF")
       this.statusText.setVisible(true)
 
@@ -397,6 +405,7 @@ function createMainScene(Phaser: any) {
 export function BaseGame() {
   const gameRef = useRef<any>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const isInitializingRef = useRef(false)
   const [gameState, setGameState] = useState<GameState>({
     currentRow: 0,
@@ -408,11 +417,11 @@ export function BaseGame() {
   const [phaserLoaded, setPhaserLoaded] = useState(false)
   const [flowState, setFlowState] = useState<GameFlowState>("initial")
   const [showTicketModal, setShowTicketModal] = useState(false)
+  const [localTicketCount, setLocalTicketCount] = useState(0)
 
   // Game contract hook
   const {
     isConnected,
-    address,
     prizePool,
     ticketCount,
     currentTicket,
@@ -427,19 +436,24 @@ export function BaseGame() {
     resetGame: resetContractGame,
     refetchPrizePool,
     refetchAttemptBalance,
+    txHash,
   } = useGameContract()
+
+  // Sync local ticket count
+  useEffect(() => {
+    setLocalTicketCount(ticketCount)
+  }, [ticketCount])
 
   // Update flow state based on ticket count
   useEffect(() => {
-    if (ticketCount > 0 && flowState === "initial") {
+    if (localTicketCount > 0 && flowState === "initial") {
       setFlowState("ready_to_play")
     }
-  }, [ticketCount, flowState])
+  }, [localTicketCount, flowState])
 
   // Handle game state changes (won/lost)
   useEffect(() => {
     if (gameState.gameStatus === "won" && currentTicket && flowState === "playing") {
-      // Game won - request signature from backend
       setFlowState("won")
       requestWinSignature(currentTicket.ticketId, currentTicket.prizeSnapshot)
     } else if (gameState.gameStatus === "lost" && flowState === "playing") {
@@ -449,14 +463,16 @@ export function BaseGame() {
 
   // Handle transaction confirmations
   useEffect(() => {
-    if (isConfirmed) {
+    if (isConfirmed && txHash) {
       if (flowState === "buy_tickets") {
         setShowTicketModal(false)
         setFlowState("ready_to_play")
+        // Immediately update local count optimistically
         refetchAttemptBalance()
       } else if (flowState === "starting_attempt" && currentTicket) {
-        // Attempt started, now start the actual game
         setFlowState("playing")
+        // Decrement local ticket count immediately
+        setLocalTicketCount(prev => Math.max(0, prev - 1))
         const scene = gameRef.current?.scene.getScene("MainScene") as any
         scene?.startGame()
       } else if (flowState === "claiming") {
@@ -464,7 +480,7 @@ export function BaseGame() {
         refetchPrizePool()
       }
     }
-  }, [isConfirmed, flowState, currentTicket, refetchAttemptBalance, refetchPrizePool])
+  }, [isConfirmed, txHash, flowState, currentTicket, refetchAttemptBalance, refetchPrizePool])
 
   // Initialize Phaser
   useEffect(() => {
@@ -500,19 +516,14 @@ export function BaseGame() {
         
         const MainScene = createMainScene(Phaser)
 
-        if (containerRef.current) {
-          containerRef.current.style.width = `${GAME_WIDTH}px`
-          containerRef.current.style.height = `${GAME_HEIGHT}px`
-        }
-
         const config: any = {
-          type: Phaser.CANVAS,
+          type: Phaser.AUTO,
           width: GAME_WIDTH,
           height: GAME_HEIGHT,
           parent: containerRef.current,
-          transparent: true,
+          backgroundColor: 0x5b616e,
           scale: {
-            mode: Phaser.Scale.NONE,
+            mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
           },
           render: {
@@ -524,29 +535,6 @@ export function BaseGame() {
         }
 
         gameRef.current = new Phaser.Game(config)
-        
-        const renderer = gameRef.current.renderer as any
-        if (renderer.gl) {
-          const originalPreRender = renderer.preRender?.bind(renderer)
-          renderer.preRender = function() {
-            renderer.gl.clearColor(0, 0, 0, 0)
-            if (originalPreRender) originalPreRender()
-          }
-        }
-        
-        setTimeout(() => {
-          if (containerRef.current) {
-            const canvas = containerRef.current.querySelector('canvas') as HTMLCanvasElement
-            if (canvas) {
-              canvas.style.backgroundColor = 'transparent'
-              canvas.style.background = 'transparent'
-              canvas.style.display = 'block'
-              canvas.style.setProperty('background', 'transparent', 'important')
-              canvas.style.setProperty('background-color', 'transparent', 'important')
-            }
-          }
-        }, 0)
-        
         gameRef.current.scene.start("MainScene", { onGameStateChange: setGameState })
         setPhaserLoaded(true)
         isInitializingRef.current = false
@@ -579,21 +567,24 @@ export function BaseGame() {
     if (!phaserLoaded || !isConnected) return
     
     if (flowState === "initial" || flowState === "lost" || flowState === "claimed") {
-      if (ticketCount > 0) {
+      if (localTicketCount > 0) {
         setFlowState("ready_to_play")
       } else {
         setShowTicketModal(true)
         setFlowState("buy_tickets")
       }
     } else if (flowState === "ready_to_play") {
-      // Start attempt on blockchain
       setFlowState("starting_attempt")
       startAttempt()
     }
-  }, [phaserLoaded, isConnected, flowState, ticketCount, startAttempt])
+  }, [phaserLoaded, isConnected, flowState, localTicketCount, startAttempt])
 
   const handleBuyTickets = useCallback(async (amount: 1 | 10 | 50) => {
-    await buyTickets(amount)
+    const success = await buyTickets(amount)
+    if (success) {
+      // Optimistically update local count
+      setLocalTicketCount(prev => prev + amount)
+    }
   }, [buyTickets])
 
   const handleClaimPrize = useCallback(async () => {
@@ -607,18 +598,17 @@ export function BaseGame() {
     scene?.resetGame()
     resetContractGame()
     
-    if (ticketCount > 0) {
+    if (localTicketCount > 0) {
       setFlowState("ready_to_play")
     } else {
       setFlowState("initial")
     }
-  }, [ticketCount, resetContractGame])
+  }, [localTicketCount, resetContractGame])
 
-  // Button text based on flow state
   const getButtonText = () => {
     switch (flowState) {
       case "initial":
-        return ticketCount > 0 ? "▶️ Play" : "🎟️ Buy Tickets"
+        return localTicketCount > 0 ? "▶️ Play" : "🎟️ Buy Tickets"
       case "buy_tickets":
         return "🎟️ Buying..."
       case "ready_to_play":
@@ -628,7 +618,7 @@ export function BaseGame() {
       case "playing":
         return "🎮 Playing..."
       case "won":
-        return claimData ? "💰 Claim Prize" : "⏳ Preparing..."
+        return claimData ? "💰 Claim" : "⏳ Loading..."
       case "claiming":
         return "⏳ Claiming..."
       case "claimed":
@@ -651,7 +641,7 @@ export function BaseGame() {
   const handleMainButtonClick = () => {
     switch (flowState) {
       case "initial":
-        if (ticketCount > 0) {
+        if (localTicketCount > 0) {
           setFlowState("ready_to_play")
         } else {
           setShowTicketModal(true)
@@ -672,225 +662,143 @@ export function BaseGame() {
   }
 
   return (
-    <div className="flex items-center justify-center p-4">
-      <div
-        style={{ 
-          width: `${GAME_WIDTH}px`,
-          height: `${GAME_HEIGHT}px`,
-          maxWidth: "100%",
-          maxHeight: "calc(100vh - 200px)",
-          minWidth: "320px",
-          position: "relative",
-          backgroundColor: "transparent"
-        }}
-      >
-        {/* Prize Pool and Tickets Display */}
-        <div 
-          className="flex justify-between items-center px-4"
-          style={{ 
-            position: 'absolute', 
-            top: '10px', 
-            left: '0', 
-            right: '0', 
-            zIndex: 20 
-          }}
-        >
-          {/* Prize Pool */}
-          <div 
-            className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg"
-            style={{ minWidth: '140px' }}
-          >
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Prize Pool</div>
-            <div className="text-xl font-bold text-blue-600">
-              {parseFloat(prizePool).toFixed(5)} ETH
-            </div>
-          </div>
-
-          {/* Tickets */}
-          <div 
-            className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg"
-            style={{ minWidth: '100px' }}
-          >
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Tickets</div>
-            <div className="text-xl font-bold text-green-600">
-              🎟️ {ticketCount}
-            </div>
+    <div 
+      ref={wrapperRef}
+      className="flex flex-col w-full h-full min-h-screen"
+      style={{ backgroundColor: '#5b616e' }}
+    >
+      {/* Header with Prize Pool and Tickets */}
+      <div className="flex justify-between items-center px-3 py-2 flex-shrink-0">
+        {/* Prize Pool */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Prize Pool</div>
+          <div className="text-sm font-bold text-blue-600">
+            {parseFloat(prizePool).toFixed(5)} ETH
           </div>
         </div>
 
-        {/* Phaser Game Container */}
-        <div
-          ref={containerRef}
-          className="overflow-visible"
-          style={{ 
-            width: `${GAME_WIDTH}px`,
-            height: `${GAME_HEIGHT}px`,
-            backgroundColor: "transparent",
-            position: "relative",
-            zIndex: 1,
-            pointerEvents: "auto"
-          }}
-        />
-
-        {/* Control Buttons */}
-        <div 
-          className="flex gap-4 justify-center" 
-          style={{ 
-            position: 'absolute', 
-            top: '700px', 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
-            zIndex: 10 
-          }}
-        >
-          <button
-            onClick={handleShuffle}
-            disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-            className="px-10 py-4 text-3xl font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            style={{ 
-              backgroundColor: '#eef0f3', 
-              color: '#0A0B0D'
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = '#b6f569'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = '#eef0f3'
-              }
-            }}
-          >
-            🔀 Shuffle
-          </button>
-          
-          <button
-            onClick={handleMainButtonClick}
-            disabled={isButtonDisabled()}
-            className="px-10 py-4 text-3xl font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            style={{ 
-              backgroundColor: flowState === "won" && claimData ? '#66C800' : '#eef0f3', 
-              color: flowState === "won" && claimData ? '#FFFFFF' : '#0A0B0D'
-            }}
-            onMouseEnter={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = flowState === "won" && claimData ? '#4da600' : '#b6f569'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!e.currentTarget.disabled) {
-                e.currentTarget.style.backgroundColor = flowState === "won" && claimData ? '#66C800' : '#eef0f3'
-              }
-            }}
-          >
-            {getButtonText()}
-          </button>
-        </div>
-
-        {/* Footer Text */}
-        <div 
-          className="text-center" 
-          style={{ 
-            position: 'absolute', 
-            top: '770px', 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
-            width: '100%', 
-            zIndex: 10 
-          }}
-        >
-          <p className="text-lg md:text-xl" style={{ color: '#32353d' }}>
-            Find your <span style={{ color: '#0000FF' }}>BASE</span> way
-          </p>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div 
-            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-30"
-            style={{ maxWidth: '90%' }}
-          >
-            {error}
+        {/* Tickets */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Tickets</div>
+          <div className="text-sm font-bold text-green-600">
+            🎟️ {localTicketCount}
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Ticket Purchase Modal */}
-        {showTicketModal && (
+      {/* Game Container - flexible area */}
+      <div 
+        ref={containerRef}
+        className="flex-grow flex items-center justify-center"
+        style={{ minHeight: '400px' }}
+      />
+
+      {/* Control Buttons */}
+      <div className="flex gap-2 justify-center px-3 py-2 flex-shrink-0">
+        <button
+          onClick={handleShuffle}
+          disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
+          className="px-4 py-2 text-base font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          style={{ backgroundColor: '#eef0f3', color: '#0A0B0D' }}
+        >
+          🔀 Shuffle
+        </button>
+        
+        <button
+          onClick={handleMainButtonClick}
+          disabled={isButtonDisabled()}
+          className="px-6 py-2 text-base font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          style={{ 
+            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#eef0f3', 
+            color: flowState === "won" && claimData ? '#FFFFFF' : '#0A0B0D'
+          }}
+        >
+          {getButtonText()}
+        </button>
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mx-3 mb-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm text-center">
+          {error}
+        </div>
+      )}
+
+      {/* Ticket Purchase Modal */}
+      {showTicketModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowTicketModal(false)
+            if (flowState === "buy_tickets") setFlowState("initial")
+          }}
+        >
           <div 
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            onClick={() => {
-              setShowTicketModal(false)
-              if (flowState === "buy_tickets") setFlowState("initial")
-            }}
+            className="bg-white rounded-2xl p-4 shadow-2xl w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div 
-              className="bg-white rounded-2xl p-6 shadow-2xl max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                🎟️ Buy Tickets
-              </h2>
-              
-              <div className="space-y-4">
-                <button
-                  onClick={() => handleBuyTickets(1)}
-                  disabled={isProcessing}
-                  className="w-full py-4 px-6 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
-                >
-                  <span>1 Ticket</span>
-                  <span className="text-sm opacity-80">0.00005 ETH</span>
-                </button>
-                
-                <button
-                  onClick={() => handleBuyTickets(10)}
-                  disabled={isProcessing}
-                  className="w-full py-4 px-6 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
-                >
-                  <span>10 Tickets</span>
-                  <span className="text-sm opacity-80">0.0005 ETH</span>
-                </button>
-                
-                <button
-                  onClick={() => handleBuyTickets(50)}
-                  disabled={isProcessing}
-                  className="w-full py-4 px-6 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
-                >
-                  <span>50 Tickets</span>
-                  <span className="text-sm opacity-80">0.0025 ETH</span>
-                </button>
-              </div>
-
-              {isProcessing && (
-                <div className="mt-4 text-center text-gray-500">
-                  <div className="animate-spin inline-block w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full mr-2"></div>
-                  Processing transaction...
-                </div>
-              )}
+            <h2 className="text-xl font-bold text-center mb-4 text-gray-800">
+              🎟️ Buy Tickets
+            </h2>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => handleBuyTickets(1)}
+                disabled={isProcessing}
+                className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
+              >
+                <span>1 Ticket</span>
+                <span className="text-sm opacity-80">0.00005 ETH</span>
+              </button>
               
               <button
-                onClick={() => {
-                  setShowTicketModal(false)
-                  if (flowState === "buy_tickets") setFlowState("initial")
-                }}
-                className="mt-6 w-full py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all"
+                onClick={() => handleBuyTickets(10)}
+                disabled={isProcessing}
+                className="w-full py-3 px-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
               >
-                Cancel
+                <span>10 Tickets</span>
+                <span className="text-sm opacity-80">0.0005 ETH</span>
+              </button>
+              
+              <button
+                onClick={() => handleBuyTickets(50)}
+                disabled={isProcessing}
+                className="w-full py-3 px-4 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
+              >
+                <span>50 Tickets</span>
+                <span className="text-sm opacity-80">0.0025 ETH</span>
               </button>
             </div>
-          </div>
-        )}
 
-        {/* Not Connected Warning */}
-        {!isConnected && phaserLoaded && (
-          <div 
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 px-6 py-4 rounded-xl shadow-lg z-30"
-          >
+            {isProcessing && (
+              <div className="mt-3 text-center text-gray-500 text-sm">
+                <div className="animate-spin inline-block w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full mr-2"></div>
+                Processing...
+              </div>
+            )}
+            
+            <button
+              onClick={() => {
+                setShowTicketModal(false)
+                if (flowState === "buy_tickets") setFlowState("initial")
+              }}
+              className="mt-4 w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Not Connected Warning */}
+      {!isConnected && phaserLoaded && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
+          <div className="bg-yellow-100 border-2 border-yellow-400 text-yellow-800 px-4 py-3 rounded-xl shadow-lg text-center">
             <p className="font-bold">⚠️ Wallet not connected</p>
             <p className="text-sm">Please connect your wallet to play</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

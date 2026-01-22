@@ -4,7 +4,7 @@
     "payload": "",
     "signature": ""
   },
-  "baseBuilder": {
+    "baseBuilder": {
     "allowedAddresses": ["0x459f852E759D4aC09Dfd7e310E7075801A2580C9"]
   },
   "miniapp": {
@@ -21,11 +21,14 @@
     "tags": ["game", "puzzle", "base", "farcaster"],
     "requiredChains": ["eip155:8453"],
     "requiredCapabilities": ["wallet.getEthereumProvider"],
-    "subtitle": "Find your Base way",
-    "ogTitle": "Base Run - Find your Base way",
-    "ogDescription": "Find the hidden letters B, A, S, E to win the prize pool!",
-    "heroImageUrl": "https://base-run.vercel.app/background.png",
-    "ogImageUrl": "https://base-run.vercel.app/background.png",
-    "tagline": "Find your Base way"
+	"subtitle": "Find your Base way",
+	"ogTitle": "Find your Base way",
+	"ogDescription": "Find your Base way",
+    "heroImageUrl": "https://health-buddy-seven.vercel.app/images/promo.png"
+	"ogImageUrl": "https://health-buddy-seven.vercel.app/images/promo.png",
+    "tagline": "Grow Strong, Stay Happy",	
   }
 }
+
+
+
