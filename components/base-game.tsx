@@ -71,19 +71,21 @@ function createMainScene(Phaser: any) {
         .setOrigin(0.5)
       title.setShadow(2, 2, 4, 0x000000, true)
 
-      // Status text - White
+      // Status text - Bright white with strong shadow for readability
       this.statusText = this.add
         .text(GAME_WIDTH / 2, 75, "", {
           fontSize: "18px",
           color: "#FFFFFF",
           fontFamily: "Montserrat",
+          fontStyle: "bold",
         })
         .setOrigin(0.5)
         .setVisible(false)
+      this.statusText.setShadow(3, 3, 6, 0x000000, true)
 
-      // Revealed letters display - Gold
+      // Revealed letters display - Gold (moved down 15px)
       this.revealedText = this.add
-        .text(GAME_WIDTH / 2, 430, "", {
+        .text(GAME_WIDTH / 2, 445, "", {
           fontSize: "36px",
           color: "#FFD700",
           fontFamily: "Montserrat",
@@ -285,7 +287,9 @@ function createMainScene(Phaser: any) {
 
         this.revealAllSquares()
       } else {
-        square.setFillStyle(0xEEF0F3)
+        // Blue background for revealed letters
+        square.setFillStyle(0x0099CC)
+        square.setStrokeStyle(2, 0x00BFFF)
         const letterText = this.add
           .text(square.x, square.y, content.toUpperCase(), {
             fontSize: "24px",
@@ -338,7 +342,9 @@ function createMainScene(Phaser: any) {
                 .setOrigin(0.5)
                 .setAlpha(0.5)
             } else {
-              square.setFillStyle(0xEEF0F3)
+              // Blue background for revealed letters (when revealing all)
+              square.setFillStyle(0x0099CC)
+              square.setStrokeStyle(2, 0x00BFFF)
               const letter = this.add
                 .text(square.x, square.y, content.toUpperCase(), {
                   fontSize: "24px",
