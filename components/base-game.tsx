@@ -57,44 +57,46 @@ function createMainScene(Phaser: any) {
     }
 
     create() {
-      // Set background color for the game area
-      this.cameras.main.setBackgroundColor(0xeef0f3)
+      // Set background color for the game area - dark gradient
+      this.cameras.main.setBackgroundColor(0x121212)
       
-      // Title
-      this.add
+      // Title - Gold with shadow
+      const title = this.add
         .text(GAME_WIDTH / 2, 35, "Base Run", {
           fontSize: "42px",
-          color: "#0000FF",
+          color: "#FFD700",
           fontFamily: "Montserrat",
           fontStyle: "bold",
         })
         .setOrigin(0.5)
+      title.setShadow(2, 2, 4, 0x000000, true)
 
-      // Status text
+      // Status text - White
       this.statusText = this.add
         .text(GAME_WIDTH / 2, 75, "", {
           fontSize: "18px",
-          color: "#0000FF",
+          color: "#FFFFFF",
           fontFamily: "Montserrat",
         })
         .setOrigin(0.5)
         .setVisible(false)
 
-      // Revealed letters display
+      // Revealed letters display - Gold
       this.revealedText = this.add
         .text(GAME_WIDTH / 2, 430, "", {
           fontSize: "36px",
-          color: "#0000FF",
+          color: "#FFD700",
           fontFamily: "Montserrat",
           fontStyle: "bold",
         })
         .setOrigin(0.5)
+      this.revealedText.setShadow(2, 2, 4, 0x000000, true)
 
-      // Footer text
+      // Footer text - Silver gray
       this.add
         .text(GAME_WIDTH / 2, 495, "Find your BASE way", {
           fontSize: "28px",
-          color: "#0a0b0d",
+          color: "#C0C0C0",
           fontFamily: "Montserrat",
         })
         .setOrigin(0.5)
@@ -168,9 +170,10 @@ function createMainScene(Phaser: any) {
           const x = startX + i * (squareSize + gap) + squareSize / 2
           const y = startY + rowIndex * rowSpacing + squareSize / 2
 
+          // Create gradient effect for squares (gold to neon green)
           const square = this.add
-            .rectangle(x, y, squareSize, squareSize, 0xb6f569)
-            .setStrokeStyle(2, 0x8fc04a)
+            .rectangle(x, y, squareSize, squareSize, 0xFFD700)
+            .setStrokeStyle(2, 0x00FF7F)
             .setInteractive({ useHandCursor: true })
 
           square.setData("questionMark", null)
@@ -178,14 +181,28 @@ function createMainScene(Phaser: any) {
           square.setData("squareIndex", i)
           square.setData("revealed", false)
 
+          // Add shimmer/twinkle effect for casino feel
+          if (this.gameState.gameStatus === "idle" || this.gameState.gameStatus === "playing") {
+            this.tweens.add({
+              targets: square,
+              alpha: { from: 0.8, to: 1 },
+              duration: Phaser.Math.Between(1000, 2000),
+              yoyo: true,
+              repeat: -1,
+              delay: Phaser.Math.Between(0, 500)
+            })
+          }
+
           square.on("pointerover", () => {
             if (
               this.gameState.gameStatus === "playing" &&
               rowIndex === this.gameState.currentRow &&
               !square.getData("revealed")
             ) {
-              square.setFillStyle(0xc8f77a)
+              square.setFillStyle(0x00FF7F)
               square.setScale(1.05)
+              // Add glow effect
+              square.setStrokeStyle(3, 0x00FF7F)
             }
           })
 
@@ -194,8 +211,9 @@ function createMainScene(Phaser: any) {
               !square.getData("revealed") &&
               this.gameState.gameStatus !== "lost"
             ) {
-              square.setFillStyle(0xb6f569)
+              square.setFillStyle(0xFFD700)
               square.setScale(1)
+              square.setStrokeStyle(2, 0x00FF7F)
             }
           })
 
@@ -219,9 +237,17 @@ function createMainScene(Phaser: any) {
               rowIndex === this.gameState.currentRow &&
               this.gameState.gameStatus === "playing"
             ) {
-              square.setStrokeStyle(2, 0x0000FF)
+              square.setStrokeStyle(3, 0x00BFFF)
+              // Add pulsing glow effect
+              this.tweens.add({
+                targets: square,
+                alpha: { from: 0.8, to: 1 },
+                duration: 500,
+                yoyo: true,
+                repeat: -1
+              })
             } else {
-              square.setStrokeStyle(2, 0x8fc04a)
+              square.setStrokeStyle(2, 0x00FF7F)
             }
           }
         }
@@ -263,11 +289,12 @@ function createMainScene(Phaser: any) {
         const letterText = this.add
           .text(square.x, square.y, content.toUpperCase(), {
             fontSize: "24px",
-            color: "#0000FF",
+            color: "#FFD700",
             fontFamily: "Montserrat",
             fontStyle: "bold",
           })
           .setOrigin(0.5)
+        letterText.setShadow(1, 1, 2, 0x000000, true)
         square.setData("letterText", letterText)
 
         this.gameState.revealedLetters.push(content)
@@ -312,15 +339,16 @@ function createMainScene(Phaser: any) {
                 .setAlpha(0.5)
             } else {
               square.setFillStyle(0xEEF0F3)
-              this.add
+              const letter = this.add
                 .text(square.x, square.y, content.toUpperCase(), {
                   fontSize: "24px",
-                  color: "#0000FF",
+                  color: "#FFD700",
                   fontFamily: "Montserrat",
                   fontStyle: "bold",
                 })
                 .setOrigin(0.5)
                 .setAlpha(0.5)
+              letter.setShadow(1, 1, 2, 0x000000, true)
             }
           }
         }
@@ -523,7 +551,7 @@ export function BaseGame() {
           width: GAME_WIDTH,
           height: GAME_HEIGHT,
           parent: containerRef.current,
-          backgroundColor: 0xeef0f3,
+          backgroundColor: 0x121212,
           scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -558,12 +586,53 @@ export function BaseGame() {
     }
   }, [])
 
+  // Create sparkles effect
+  const createSparkles = useCallback((x: number, y: number) => {
+    const sparkleContainer = document.createElement('div')
+    sparkleContainer.style.position = 'fixed'
+    sparkleContainer.style.left = `${x}px`
+    sparkleContainer.style.top = `${y}px`
+    sparkleContainer.style.pointerEvents = 'none'
+    sparkleContainer.style.zIndex = '1000'
+    
+    for (let i = 0; i < 8; i++) {
+      const sparkle = document.createElement('div')
+      sparkle.style.position = 'absolute'
+      sparkle.style.width = '4px'
+      sparkle.style.height = '4px'
+      sparkle.style.backgroundColor = '#FFD700'
+      sparkle.style.borderRadius = '50%'
+      sparkle.style.boxShadow = '0 0 6px #FFD700'
+      
+      const angle = (Math.PI * 2 * i) / 8
+      const distance = 30
+      const startX = Math.cos(angle) * distance
+      const startY = Math.sin(angle) * distance
+      
+      sparkle.style.left = '0px'
+      sparkle.style.top = '0px'
+      sparkleContainer.appendChild(sparkle)
+      
+      sparkle.animate([
+        { transform: `translate(0, 0) scale(1)`, opacity: 1 },
+        { transform: `translate(${startX}px, ${startY}px) scale(0)`, opacity: 0 }
+      ], {
+        duration: 500,
+        easing: 'ease-out'
+      }).onfinish = () => sparkle.remove()
+    }
+    
+    document.body.appendChild(sparkleContainer)
+    setTimeout(() => sparkleContainer.remove(), 600)
+  }, [])
+
   // Handlers
-  const handleShuffle = useCallback(() => {
+  const handleShuffle = useCallback((e: React.MouseEvent) => {
     if (gameState.gameStatus === "playing" || !phaserLoaded) return
+    createSparkles(e.clientX, e.clientY)
     const scene = gameRef.current?.scene.getScene("MainScene") as any
     scene?.shuffle()
-  }, [gameState.gameStatus, phaserLoaded])
+  }, [gameState.gameStatus, phaserLoaded, createSparkles])
 
   const handlePlayClick = useCallback(() => {
     if (!phaserLoaded || !isConnected) return
@@ -610,25 +679,25 @@ export function BaseGame() {
   const getButtonText = () => {
     switch (flowState) {
       case "initial":
-        return localTicketCount > 0 ? "▶️ Play" : "🎟️ Buy Tickets"
+        return localTicketCount > 0 ? "Play" : "Buy Tickets"
       case "buy_tickets":
-        return "🎟️ Buying..."
+        return "Buying..."
       case "ready_to_play":
-        return "▶️ Play"
+        return "Play"
       case "starting_attempt":
-        return "⏳ Starting..."
+        return "Starting..."
       case "playing":
-        return "🎮 Playing..."
+        return "Playing..."
       case "won":
-        return claimData ? "💰 Claim" : "⏳ Loading..."
+        return claimData ? "Claim" : "Loading..."
       case "claiming":
-        return "⏳ Claiming..."
+        return "Claiming..."
       case "claimed":
-        return "🔄 New Game"
+        return "New Game"
       case "lost":
-        return "🔄 Try Again"
+        return "Try Again"
       default:
-        return "▶️ Play"
+        return "Play"
     }
   }
 
@@ -640,7 +709,8 @@ export function BaseGame() {
     return false
   }
 
-  const handleMainButtonClick = () => {
+  const handleMainButtonClick = (e: React.MouseEvent) => {
+    createSparkles(e.clientX, e.clientY)
     switch (flowState) {
       case "initial":
         if (localTicketCount > 0) {
@@ -667,23 +737,37 @@ export function BaseGame() {
     <div 
       ref={wrapperRef}
       className="flex flex-col w-full h-full min-h-screen"
-      style={{ backgroundColor: '#eef0f3', fontFamily: 'Montserrat, sans-serif' }}
+      style={{ 
+        background: 'linear-gradient(to bottom, #121212, #0D47A1)', 
+        fontFamily: 'Montserrat, sans-serif' 
+      }}
     >
       {/* Header with Prize Pool and Tickets */}
       <div className="flex justify-between items-center px-3 py-2 flex-shrink-0">
-        {/* Prize Pool */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-          <div className="text-[16px] text-black uppercase tracking-wide font-semibold">Prize Pool</div>
-          <div className="text-[22px] font-bold text-blue-600">
+        {/* Prize Pool - Gold badge with pulsing */}
+        <div 
+          className="rounded-lg px-4 py-2 shadow-lg border-2 border-yellow-400 animate-pulse"
+          style={{ 
+            background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+            boxShadow: '0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.4)'
+          }}
+        >
+          <div className="text-[16px] text-black uppercase tracking-wide font-bold">Prize Pool</div>
+          <div className="text-[22px] font-bold text-black">
             {parseFloat(prizePool).toFixed(5)} ETH
           </div>
         </div>
 
-        {/* Tickets */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-          <div className="text-[16px] text-black uppercase tracking-wide font-semibold">Tickets</div>
-          <div className="text-[22px] font-bold text-green-600">
-            🎟️ {localTicketCount}
+        {/* Tickets - Red badge */}
+        <div 
+          className="rounded-lg px-4 py-2 shadow-lg border-2 border-red-500"
+          style={{ 
+            background: 'linear-gradient(135deg, #FF4136, #C62828)'
+          }}
+        >
+          <div className="text-[16px] text-white uppercase tracking-wide font-bold">Tickets</div>
+          <div className="text-[22px] font-bold text-white">
+            {localTicketCount}
           </div>
         </div>
       </div>
@@ -700,19 +784,30 @@ export function BaseGame() {
         <button
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="px-6 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-          style={{ backgroundColor: '#b6f569', color: '#0a0b0d' }}
+          className="px-6 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          style={{ 
+            background: 'linear-gradient(135deg, #00BFFF, #0099CC)',
+            color: '#FFFFFF',
+            boxShadow: '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+          }}
         >
-          🔀 Shuffle
+          Shuffle
         </button>
         
         <button
           onClick={handleMainButtonClick}
           disabled={isButtonDisabled()}
-          className="px-8 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+          className="px-8 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
           style={{ 
-            backgroundColor: flowState === "won" && claimData ? '#66C800' : '#b6f569', 
-            color: flowState === "won" && claimData ? '#FFFFFF' : '#0a0b0d'
+            background: flowState === "won" && claimData 
+              ? 'linear-gradient(135deg, #66C800, #4CAF50)' 
+              : 'linear-gradient(135deg, #FF4136, #C62828)',
+            color: '#FFFFFF',
+            boxShadow: flowState === "won" && claimData
+              ? '0 0 20px rgba(102, 200, 0, 0.6), 0 0 40px rgba(102, 200, 0, 0.4)'
+              : '0 0 20px rgba(255, 65, 54, 0.6), 0 0 40px rgba(255, 65, 54, 0.4)',
+            textShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
           }}
         >
           {getButtonText()}
