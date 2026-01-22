@@ -64,7 +64,7 @@ function createMainScene(Phaser: any) {
       this.add
         .text(GAME_WIDTH / 2, 35, "Base Run", {
           fontSize: "42px",
-          color: "#32353d",
+          color: "#0000FF",
           fontFamily: "Montserrat",
           fontStyle: "bold",
         })
@@ -82,7 +82,7 @@ function createMainScene(Phaser: any) {
 
       // Revealed letters display
       this.revealedText = this.add
-        .text(GAME_WIDTH / 2, 460, "", {
+        .text(GAME_WIDTH / 2, 430, "", {
           fontSize: "36px",
           color: "#0000FF",
           fontFamily: "Montserrat",
@@ -94,7 +94,7 @@ function createMainScene(Phaser: any) {
       this.add
         .text(GAME_WIDTH / 2, 495, "Find your BASE way", {
           fontSize: "28px",
-          color: "#32353d",
+          color: "#0a0b0d",
           fontFamily: "Montserrat",
         })
         .setOrigin(0.5)
@@ -673,16 +673,16 @@ export function BaseGame() {
       <div className="flex justify-between items-center px-3 py-2 flex-shrink-0">
         {/* Prize Pool */}
         <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-          <div className="text-[20px] text-gray-500 uppercase tracking-wide font-semibold">Prize Pool</div>
-          <div className="text-[28px] font-bold text-blue-600">
+          <div className="text-[16px] text-black uppercase tracking-wide font-semibold">Prize Pool</div>
+          <div className="text-[22px] font-bold text-blue-600">
             {parseFloat(prizePool).toFixed(5)} ETH
           </div>
         </div>
 
         {/* Tickets */}
         <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-          <div className="text-[20px] text-gray-500 uppercase tracking-wide font-semibold">Tickets</div>
-          <div className="text-[28px] font-bold text-green-600">
+          <div className="text-[16px] text-black uppercase tracking-wide font-semibold">Tickets</div>
+          <div className="text-[22px] font-bold text-green-600">
             🎟️ {localTicketCount}
           </div>
         </div>
@@ -700,8 +700,8 @@ export function BaseGame() {
         <button
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="px-6 py-3 text-[32px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-          style={{ backgroundColor: '#b8a581', color: '#32353d' }}
+          className="px-6 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+          style={{ backgroundColor: '#b8a581', color: '#0a0b0d' }}
         >
           🔀 Shuffle
         </button>
@@ -709,10 +709,10 @@ export function BaseGame() {
         <button
           onClick={handleMainButtonClick}
           disabled={isButtonDisabled()}
-          className="px-8 py-3 text-[32px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+          className="px-8 py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
           style={{ 
             backgroundColor: flowState === "won" && claimData ? '#66C800' : '#b8a581', 
-            color: flowState === "won" && claimData ? '#FFFFFF' : '#32353d'
+            color: flowState === "won" && claimData ? '#FFFFFF' : '#0a0b0d'
           }}
         >
           {getButtonText()}
