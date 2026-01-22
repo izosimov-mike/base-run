@@ -772,24 +772,21 @@ export function BaseGame() {
         </div>
       </div>
 
-      {/* Game Container - flexible area with gradient background */}
+      {/* Game Container - flexible area (transparent, parent gradient shows through) */}
       <div 
         ref={containerRef}
         className="flex-grow flex items-center justify-center"
-        style={{ 
-          minHeight: '400px',
-          background: 'linear-gradient(to bottom, #121212, #0D47A1)'
-        }}
+        style={{ minHeight: '400px' }}
       />
 
       {/* Control Buttons */}
-      <div className="flex gap-3 justify-center px-3 py-3 flex-shrink-0">
+      <div className="flex gap-4 justify-center px-3 py-3 flex-shrink-0">
         <button
           onClick={handleShuffle}
           disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          className="py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
           style={{ 
-            width: '140px',
+            width: '160px',
             background: 'linear-gradient(135deg, #00BFFF, #0099CC)',
             color: '#FFFFFF',
             boxShadow: '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
@@ -802,9 +799,9 @@ export function BaseGame() {
         <button
           onClick={handleMainButtonClick}
           disabled={isButtonDisabled()}
-          className="py-3 text-[24px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          className="py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
           style={{ 
-            width: '140px',
+            width: '160px',
             background: flowState === "won" && claimData 
               ? 'linear-gradient(135deg, #66C800, #4CAF50)' 
               : 'linear-gradient(135deg, #FF4136, #C62828)',
