@@ -57,8 +57,9 @@ function createMainScene(Phaser: any) {
     }
 
     create() {
-      // Set background color for the game area - dark gradient
-      this.cameras.main.setBackgroundColor(0x121212)
+      // Make Phaser background transparent to show CSS gradient behind
+      this.cameras.main.setBackgroundColor(0x000000)
+      this.cameras.main.transparent = true
       
       // Title - Gold with shadow
       const title = this.add
@@ -274,7 +275,7 @@ function createMainScene(Phaser: any) {
         this.add
           .text(square.x, square.y, "💀", {
             fontSize: "32px",
-            fontFamily: "Arial",
+            fontFamily: "Montserrat",
           })
           .setOrigin(0.5)
 
@@ -333,7 +334,7 @@ function createMainScene(Phaser: any) {
               this.add
                 .text(square.x, square.y, "💀", {
                   fontSize: "32px",
-                  fontFamily: "Arial",
+                  fontFamily: "Montserrat",
                 })
                 .setOrigin(0.5)
                 .setAlpha(0.5)
@@ -551,7 +552,7 @@ export function BaseGame() {
           width: GAME_WIDTH,
           height: GAME_HEIGHT,
           parent: containerRef.current,
-          backgroundColor: 0x121212,
+          transparent: true,
           scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -814,62 +815,102 @@ export function BaseGame() {
         </button>
       </div>
 
-      {/* Error Display */}
+      {/* Error Display - Casino Style */}
       {error && (
-        <div className="mx-3 mb-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm text-center">
+        <div 
+          className="mx-3 mb-2 px-3 py-2 rounded-lg text-sm text-center border border-red-500"
+          style={{ 
+            background: 'linear-gradient(135deg, #C62828, #8B0000)',
+            color: '#FFFFFF',
+            fontFamily: 'Montserrat, sans-serif',
+            boxShadow: '0 0 15px rgba(198, 40, 40, 0.5)'
+          }}
+        >
           {error}
         </div>
       )}
 
-      {/* Ticket Purchase Modal */}
+      {/* Ticket Purchase Modal - Casino Style */}
       {showTicketModal && (
         <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={() => {
             setShowTicketModal(false)
             if (flowState === "buy_tickets") setFlowState("initial")
           }}
         >
           <div 
-            className="bg-white rounded-2xl p-4 shadow-2xl w-full max-w-sm"
+            className="rounded-2xl p-5 shadow-2xl w-full max-w-sm border-2 border-yellow-500"
+            style={{ 
+              background: 'linear-gradient(135deg, #1A1A1A, #0D47A1)',
+              fontFamily: 'Montserrat, sans-serif',
+              boxShadow: '0 0 30px rgba(255, 215, 0, 0.3)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold text-center mb-4 text-gray-800">
-              🎟️ Buy Tickets
+            <h2 
+              className="text-2xl font-bold text-center mb-5"
+              style={{ 
+                color: '#FFD700',
+                textShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
+              }}
+            >
+              Buy Tickets
             </h2>
             
             <div className="space-y-3">
               <button
                 onClick={() => handleBuyTickets(1)}
                 disabled={isProcessing}
-                className="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
+                className="w-full py-3 px-4 font-bold rounded-xl transition-all flex justify-between items-center hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                style={{ 
+                  background: 'linear-gradient(135deg, #FF4136, #C62828)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 0 15px rgba(255, 65, 54, 0.5)',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
               >
                 <span>1 Ticket</span>
-                <span className="text-sm opacity-80">0.00005 ETH</span>
+                <span style={{ color: '#FFD700' }}>0.00005 ETH</span>
               </button>
               
               <button
                 onClick={() => handleBuyTickets(10)}
                 disabled={isProcessing}
-                className="w-full py-3 px-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
+                className="w-full py-3 px-4 font-bold rounded-xl transition-all flex justify-between items-center hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                style={{ 
+                  background: 'linear-gradient(135deg, #FF4136, #C62828)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 0 15px rgba(255, 65, 54, 0.5)',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
               >
                 <span>10 Tickets</span>
-                <span className="text-sm opacity-80">0.0005 ETH</span>
+                <span style={{ color: '#FFD700' }}>0.0005 ETH</span>
               </button>
               
               <button
                 onClick={() => handleBuyTickets(50)}
                 disabled={isProcessing}
-                className="w-full py-3 px-4 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 text-white font-bold rounded-xl transition-all flex justify-between items-center"
+                className="w-full py-3 px-4 font-bold rounded-xl transition-all flex justify-between items-center hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                style={{ 
+                  background: 'linear-gradient(135deg, #FF4136, #C62828)',
+                  color: '#FFFFFF',
+                  boxShadow: '0 0 15px rgba(255, 65, 54, 0.5)',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
               >
                 <span>50 Tickets</span>
-                <span className="text-sm opacity-80">0.0025 ETH</span>
+                <span style={{ color: '#FFD700' }}>0.0025 ETH</span>
               </button>
             </div>
 
             {isProcessing && (
-              <div className="mt-3 text-center text-gray-500 text-sm">
-                <div className="animate-spin inline-block w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full mr-2"></div>
+              <div className="mt-4 text-center" style={{ color: '#C0C0C0', fontFamily: 'Montserrat, sans-serif' }}>
+                <div 
+                  className="animate-spin inline-block w-5 h-5 border-2 rounded-full mr-2"
+                  style={{ borderColor: '#FFD700', borderTopColor: 'transparent' }}
+                ></div>
                 Processing...
               </div>
             )}
@@ -879,7 +920,13 @@ export function BaseGame() {
                 setShowTicketModal(false)
                 if (flowState === "buy_tickets") setFlowState("initial")
               }}
-              className="mt-4 w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all"
+              className="mt-4 w-full py-2 font-medium rounded-xl transition-all hover:scale-105"
+              style={{ 
+                background: 'linear-gradient(135deg, #00BFFF, #0099CC)',
+                color: '#FFFFFF',
+                boxShadow: '0 0 15px rgba(0, 191, 255, 0.5)',
+                fontFamily: 'Montserrat, sans-serif'
+              }}
             >
               Cancel
             </button>
@@ -887,12 +934,19 @@ export function BaseGame() {
         </div>
       )}
 
-      {/* Not Connected Warning */}
+      {/* Not Connected Warning - Casino Style */}
       {!isConnected && phaserLoaded && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
-          <div className="bg-yellow-100 border-2 border-yellow-400 text-yellow-800 px-4 py-3 rounded-xl shadow-lg text-center">
-            <p className="font-bold">⚠️ Wallet not connected</p>
-            <p className="text-sm">Please connect your wallet to play</p>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-40 p-4">
+          <div 
+            className="border-2 border-yellow-500 px-6 py-4 rounded-xl shadow-lg text-center"
+            style={{ 
+              background: 'linear-gradient(135deg, #1A1A1A, #0D47A1)',
+              boxShadow: '0 0 30px rgba(255, 215, 0, 0.3)',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+          >
+            <p className="font-bold text-lg" style={{ color: '#FFD700' }}>⚠️ Wallet not connected</p>
+            <p style={{ color: '#C0C0C0' }}>Please connect your wallet to play</p>
           </div>
         </div>
       )}
