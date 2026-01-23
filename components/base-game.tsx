@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
+import { sdk } from '@farcaster/miniapp-sdk'
 import { useGameContract } from "@/hooks/useGameContract"
 
 declare global {
@@ -132,10 +133,8 @@ function createMainScene(Phaser: any) {
       })
       textsToDestroy.forEach((text) => text.destroy())
 
-      // TEMPORARY: Letters always in first position for testing win scenario
-      // TODO: Revert to random after testing: Phaser.Math.Between(0, size - 1)
       this.gameState.letterPositions = this.gameState.rowSizes.map(
-        (size) => 0 // Always first position
+        (size) => Phaser.Math.Between(0, size - 1)
       )
 
       for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
@@ -504,23 +503,27 @@ export function BaseGame() {
 
   // Handle transaction confirmations
   useEffect(() => {
-    if (isConfirmed && txHash) {
-      if (flowState === "buy_tickets") {
-        setShowTicketModal(false)
-        setFlowState("ready_to_play")
-        // Immediately update local count optimistically
-        refetchAttemptBalance()
-      } else if (flowState === "starting_attempt" && currentTicket) {
-        setFlowState("playing")
-        // Decrement local ticket count immediately
-        setLocalTicketCount(prev => Math.max(0, prev - 1))
-        const scene = gameRef.current?.scene.getScene("MainScene") as any
-        scene?.startGame()
-      } else if (flowState === "claiming") {
-        setFlowState("claimed")
-        refetchPrizePool()
+    const handleConfirmation = async () => {
+      if (isConfirmed && txHash) {
+        if (flowState === "buy_tickets") {
+          setShowTicketModal(false)
+          setFlowState("ready_to_play")
+          // Immediately update local count optimistically
+          await refetchAttemptBalance()
+        } else if (flowState === "starting_attempt" && currentTicket) {
+          setFlowState("playing")
+          // Decrement local ticket count immediately
+          setLocalTicketCount(prev => Math.max(0, prev - 1))
+          const scene = gameRef.current?.scene.getScene("MainScene") as any
+          scene?.startGame()
+        } else if (flowState === "claiming") {
+          setFlowState("claimed")
+          // Refetch prize pool immediately after claim
+          await refetchPrizePool()
+        }
       }
     }
+    handleConfirmation()
   }, [isConfirmed, txHash, flowState, currentTicket, refetchAttemptBalance, refetchPrizePool])
 
   // Initialize Phaser
@@ -645,6 +648,22 @@ export function BaseGame() {
     scene?.shuffle()
   }, [gameState.gameStatus, phaserLoaded, createSparkles])
 
+  // Share game result via Farcaster composeCast
+  const handleShare = useCallback(async (e: React.MouseEvent) => {
+    createSparkles(e.clientX, e.clientY)
+    try {
+      await sdk.actions.composeCast({
+        text: "Ready to test your instinct? Build your Base way. Beat the challenge.",
+        embeds: ["https://base-run.vercel.app"]
+      })
+    } catch (error) {
+      console.error('Failed to share:', error)
+    }
+  }, [createSparkles])
+
+  // Check if game is in shareable state (won or lost)
+  const isShareableState = flowState === "won" || flowState === "lost" || flowState === "claimed" || flowState === "claiming"
+
   const handlePlayClick = useCallback(() => {
     if (!phaserLoaded || !isWalletReady) return
     
@@ -680,9 +699,12 @@ export function BaseGame() {
     scene?.resetGame()
     resetContractGame()
     
-    // Refetch actual ticket count from contract before deciding next state
-    const result = await refetchAttemptBalance()
-    const actualTicketCount = result.data ? Number(result.data) : 0
+    // Refetch actual ticket count and prize pool from contract
+    const [ticketResult] = await Promise.all([
+      refetchAttemptBalance(),
+      refetchPrizePool()
+    ])
+    const actualTicketCount = ticketResult.data ? Number(ticketResult.data) : 0
     
     if (actualTicketCount > 0) {
       setLocalTicketCount(actualTicketCount)
@@ -691,7 +713,7 @@ export function BaseGame() {
       setLocalTicketCount(0)
       setFlowState("initial")
     }
-  }, [resetContractGame, refetchAttemptBalance])
+  }, [resetContractGame, refetchAttemptBalance, refetchPrizePool])
 
   const getButtonText = () => {
     switch (flowState) {
@@ -799,18 +821,24 @@ export function BaseGame() {
       {/* Control Buttons */}
       <div className="flex gap-4 justify-center px-3 py-3 flex-shrink-0">
         <button
-          onClick={handleShuffle}
-          disabled={!phaserLoaded || gameState.gameStatus === "playing" || flowState === "playing"}
-          className="py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105"
+          onClick={isShareableState ? handleShare : handleShuffle}
+          disabled={!phaserLoaded || (!isShareableState && (gameState.gameStatus === "playing" || flowState === "playing"))}
+          className={`py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105 ${isShareableState ? 'animate-pulse' : ''}`}
           style={{ 
             width: '160px',
-            background: 'linear-gradient(135deg, #00BFFF, #0099CC)',
-            color: '#FFFFFF',
-            boxShadow: '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
-            textShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+            background: isShareableState 
+              ? 'linear-gradient(135deg, #FFD700, #FFA500)' 
+              : 'linear-gradient(135deg, #00BFFF, #0099CC)',
+            color: isShareableState ? '#000000' : '#FFFFFF',
+            boxShadow: isShareableState
+              ? '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4)'
+              : '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
+            textShadow: isShareableState 
+              ? '0 0 5px rgba(255, 255, 255, 0.5)' 
+              : '0 0 10px rgba(255, 255, 255, 0.8)'
           }}
         >
-          Shuffle
+          {isShareableState ? 'Share' : 'Shuffle'}
         </button>
         
         <button
