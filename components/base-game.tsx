@@ -58,8 +58,7 @@ function createMainScene(Phaser: any) {
 
     create() {
       // Make Phaser background fully transparent to show CSS gradient behind
-      // Don't set any background color - let the canvas be transparent
-      
+      // Don't set any background color - let the canvas be transparent      
       // Title - Gold with shadow
       const title = this.add
         .text(GAME_WIDTH / 2, 35, "Base Run", {
@@ -287,13 +286,13 @@ function createMainScene(Phaser: any) {
 
         this.revealAllSquares()
       } else {
-        // Blue background for revealed letters
-        square.setFillStyle(0x0099CC)
-        square.setStrokeStyle(2, 0x00BFFF)
+        // Gold background (same as unopened) with blue letter
+        square.setFillStyle(0xFFD700)
+        square.setStrokeStyle(2, 0x00FF7F)
         const letterText = this.add
           .text(square.x, square.y, content.toUpperCase(), {
             fontSize: "24px",
-            color: "#FFD700",
+            color: "#0000FF",
             fontFamily: "Montserrat",
             fontStyle: "bold",
           })
@@ -314,6 +313,7 @@ function createMainScene(Phaser: any) {
         } else {
           this.gameState.currentRow++
           this.statusText.setText(`Find "${LETTERS[this.gameState.currentRow].toUpperCase()}"`)
+          this.statusText.setColor("#C0C0C0")
           this.statusText.setVisible(true)
           this.highlightCurrentRow()
         }
@@ -342,13 +342,13 @@ function createMainScene(Phaser: any) {
                 .setOrigin(0.5)
                 .setAlpha(0.5)
             } else {
-              // Blue background for revealed letters (when revealing all)
-              square.setFillStyle(0x0099CC)
-              square.setStrokeStyle(2, 0x00BFFF)
+              // Gold background (same as unopened) with blue letter (when revealing all)
+              square.setFillStyle(0xFFD700)
+              square.setStrokeStyle(2, 0x00FF7F)
               const letter = this.add
                 .text(square.x, square.y, content.toUpperCase(), {
                   fontSize: "24px",
-                  color: "#FFD700",
+                  color: "#0000FF",
                   fontFamily: "Montserrat",
                   fontStyle: "bold",
                 })
@@ -406,7 +406,7 @@ function createMainScene(Phaser: any) {
       this.revealedText.setText("")
 
       this.statusText.setText('Find "B"')
-      this.statusText.setColor("#0000FF")
+      this.statusText.setColor("#C0C0C0")
       this.statusText.setVisible(true)
 
       this.highlightCurrentRow()
