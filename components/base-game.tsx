@@ -345,6 +345,7 @@ function createMainScene(Phaser: any) {
               // Gold background (same as unopened) with blue letter (when revealing all)
               square.setFillStyle(0xFFD700)
               square.setStrokeStyle(2, 0x00FF7F)
+              square.setAlpha(0.7) // Slightly fade the square but keep letter visible
               const letter = this.add
                 .text(square.x, square.y, content.toUpperCase(), {
                   fontSize: "24px",
@@ -353,7 +354,7 @@ function createMainScene(Phaser: any) {
                   fontStyle: "bold",
                 })
                 .setOrigin(0.5)
-                .setAlpha(0.5)
+              // No alpha on letter - keep it fully visible blue
               letter.setShadow(1, 1, 2, 0x000000, true)
             }
           }
@@ -672,17 +673,23 @@ export function BaseGame() {
     await claimPrize()
   }, [claimData, claimPrize])
 
-  const handleNewGame = useCallback(() => {
+  const handleNewGame = useCallback(async () => {
     const scene = gameRef.current?.scene.getScene("MainScene") as any
     scene?.resetGame()
     resetContractGame()
     
-    if (localTicketCount > 0) {
+    // Refetch actual ticket count from contract before deciding next state
+    const result = await refetchAttemptBalance()
+    const actualTicketCount = result.data ? Number(result.data) : 0
+    
+    if (actualTicketCount > 0) {
+      setLocalTicketCount(actualTicketCount)
       setFlowState("ready_to_play")
     } else {
+      setLocalTicketCount(0)
       setFlowState("initial")
     }
-  }, [localTicketCount, resetContractGame])
+  }, [resetContractGame, refetchAttemptBalance])
 
   const getButtonText = () => {
     switch (flowState) {
