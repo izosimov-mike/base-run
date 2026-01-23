@@ -132,8 +132,10 @@ function createMainScene(Phaser: any) {
       })
       textsToDestroy.forEach((text) => text.destroy())
 
+      // TEMPORARY: Letters always in first position for testing win scenario
+      // TODO: Revert to random after testing: Phaser.Math.Between(0, size - 1)
       this.gameState.letterPositions = this.gameState.rowSizes.map(
-        (size) => Phaser.Math.Between(0, size - 1)
+        (size) => 0 // Always first position
       )
 
       for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
