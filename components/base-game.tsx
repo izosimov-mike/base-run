@@ -511,7 +511,8 @@ export function BaseGame() {
           // Store ticket ID for backend calls
           const ticketIdStr = currentTicket.ticketId.toString()
           currentTicketIdRef.current = ticketIdStr
-          
+          console.log('[BaseGame] Attempt started, ticketId=', ticketIdStr, 'calling /api/start')
+
           // Start game session on backend
           try {
             setBackendError(null)
@@ -521,13 +522,14 @@ export function BaseGame() {
               currentTicket.prizeSnapshot.toString()
             )
             
+            console.log('[BaseGame] /api/start OK, starting Phaser game')
             setFlowState("playing")
             // Decrement local ticket count immediately
             setLocalTicketCount(prev => Math.max(0, prev - 1))
             const scene = gameRef.current?.scene.getScene("MainScene") as any
             scene?.startGame()
           } catch (err: any) {
-            console.error('Backend start error:', err)
+            console.error('[BaseGame] Backend start error:', err)
             setBackendError(err.message || 'Failed to start game on backend')
             setFlowState("ready_to_play")
           }
@@ -599,6 +601,7 @@ export function BaseGame() {
           onGameStateChange: setGameState,
           onSquareClick: async (row: number, col: number) => {
             const ticketId = currentTicketIdRef.current
+            console.log('[BaseGame] Square click', { row, col, ticketId })
             if (!ticketId) {
               throw new Error('No ticket ID')
             }
