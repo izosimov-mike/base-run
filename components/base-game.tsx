@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { sdk } from '@farcaster/miniapp-sdk'
 import { useGameContract } from "@/hooks/useGameContract"
+import { backendApi } from "@/lib/backend-api"
 
 declare global {
   var Phaser: any
@@ -20,8 +21,10 @@ interface GameState {
   gameStatus: "idle" | "playing" | "won" | "lost"
   revealedLetters: string[]
   rowSizes: number[]
-  letterPositions: number[]
 }
+
+// Click handler type - returns result from backend
+type ClickHandler = (row: number, col: number) => Promise<{ result: 'hit' | 'miss' | 'bot_detected', letter?: string }>
 
 type GameFlowState = 
   | "initial"
@@ -37,24 +40,25 @@ type GameFlowState =
 function createMainScene(Phaser: any) {
   class MainScene extends Phaser.Scene {
     private squares: Phaser.GameObjects.Rectangle[][] = []
-    private squareContents: string[][] = []
     private gameState: GameState = {
       currentRow: 0,
       gameStatus: "idle",
       revealedLetters: [],
       rowSizes: [...DEFAULT_ROW_SIZES],
-      letterPositions: [],
     }
     private statusText!: Phaser.GameObjects.Text
     private revealedText!: Phaser.GameObjects.Text
     private onGameStateChange?: (state: GameState) => void
+    private onSquareClick?: ClickHandler
+    private isProcessingClick: boolean = false
 
     constructor() {
       super({ key: "MainScene" })
     }
 
-    init(data: { onGameStateChange?: (state: GameState) => void }) {
+    init(data: { onGameStateChange?: (state: GameState) => void, onSquareClick?: ClickHandler }) {
       this.onGameStateChange = data.onGameStateChange
+      this.onSquareClick = data.onSquareClick
     }
 
     create() {
@@ -117,7 +121,6 @@ function createMainScene(Phaser: any) {
         })
       })
       this.squares = []
-      this.squareContents = []
       
       const gameAreaYStart = 80
       const gameAreaYEnd = 450
@@ -133,24 +136,8 @@ function createMainScene(Phaser: any) {
       })
       textsToDestroy.forEach((text) => text.destroy())
 
-      this.gameState.letterPositions = this.gameState.rowSizes.map(
-        (size) => Phaser.Math.Between(0, size - 1)
-      )
-
-      for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
-        const rowSize = this.gameState.rowSizes[rowIndex]
-        const letterPos = this.gameState.letterPositions[rowIndex]
-        const rowContent: string[] = []
-
-        for (let i = 0; i < rowSize; i++) {
-          if (i === letterPos) {
-            rowContent.push(LETTERS[rowIndex])
-          } else {
-            rowContent.push("skull")
-          }
-        }
-        this.squareContents.push(rowContent)
-      }
+      // Letter positions are now generated on backend - not stored locally
+      this.isProcessingClick = false
 
       this.drawSquares()
       this.notifyStateChange()
@@ -256,7 +243,7 @@ function createMainScene(Phaser: any) {
       }
     }
 
-    handleSquareClick(
+    async handleSquareClick(
       rowIndex: number,
       squareIndex: number,
       square: Phaser.GameObjects.Rectangle
@@ -264,100 +251,103 @@ function createMainScene(Phaser: any) {
       if (this.gameState.gameStatus !== "playing") return
       if (rowIndex !== this.gameState.currentRow) return
       if (square.getData("revealed")) return
+      if (this.isProcessingClick) return // Prevent double-clicks while waiting for backend
 
-      const content = this.squareContents[rowIndex][squareIndex]
+      // Mark as processing
+      this.isProcessingClick = true
       square.setData("revealed", true)
 
       const questionMark = square.getData("questionMark") as Phaser.GameObjects.Text
       if (questionMark) questionMark.destroy()
 
-      if (content === "skull") {
-        square.setFillStyle(0xFC401F)
-        this.add
-          .text(square.x, square.y, "💀", {
-            fontSize: "32px",
-            fontFamily: "Montserrat",
-          })
-          .setOrigin(0.5)
+      // Show loading indicator
+      square.setFillStyle(0x888888)
 
-        this.gameState.gameStatus = "lost"
-        this.statusText.setText("💀 GAME OVER!")
-        this.statusText.setColor("#FC401F")
-        this.statusText.setVisible(true)
+      // Call backend to check hit/miss
+      if (!this.onSquareClick) {
+        console.error('No click handler set')
+        this.isProcessingClick = false
+        return
+      }
 
-        this.revealAllSquares()
-      } else {
-        // Gold background (same as unopened) with blue letter
-        square.setFillStyle(0xFFD700)
-        square.setStrokeStyle(2, 0x00FF7F)
-        const letterText = this.add
-          .text(square.x, square.y, content.toUpperCase(), {
-            fontSize: "24px",
-            color: "#0000FF",
-            fontFamily: "Montserrat",
-            fontStyle: "bold",
-          })
-          .setOrigin(0.5)
-        letterText.setShadow(1, 1, 2, 0x000000, true)
-        square.setData("letterText", letterText)
+      try {
+        const result = await this.onSquareClick(rowIndex, squareIndex)
+        
+        if (result.result === 'miss' || result.result === 'bot_detected') {
+          // Wrong square - game over
+          square.setFillStyle(0xFC401F)
+          this.add
+            .text(square.x, square.y, "💀", {
+              fontSize: "32px",
+              fontFamily: "Montserrat",
+            })
+            .setOrigin(0.5)
 
-        this.gameState.revealedLetters.push(content)
-        this.revealedText.setText(this.gameState.revealedLetters.join("").toUpperCase())
-
-        if (this.gameState.currentRow === 3) {
-          this.gameState.gameStatus = "won"
-          this.statusText.setText("🎉 YOU WIN!")
-          this.statusText.setColor("#66C800")
+          this.gameState.gameStatus = "lost"
+          this.statusText.setText(result.result === 'bot_detected' ? "🤖 BOT DETECTED!" : "💀 GAME OVER!")
+          this.statusText.setColor("#FC401F")
           this.statusText.setVisible(true)
 
-          this.createCelebration()
-        } else {
-          this.gameState.currentRow++
-          this.statusText.setText(`Find "${LETTERS[this.gameState.currentRow].toUpperCase()}"`)
-          this.statusText.setColor("#C0C0C0")
-          this.statusText.setVisible(true)
-          this.highlightCurrentRow()
+          this.revealAllSquares()
+        } else if (result.result === 'hit' && result.letter) {
+          // Correct click - show letter
+          square.setFillStyle(0xFFD700)
+          square.setStrokeStyle(2, 0x00FF7F)
+          const letterText = this.add
+            .text(square.x, square.y, result.letter.toUpperCase(), {
+              fontSize: "24px",
+              color: "#0000FF",
+              fontFamily: "Montserrat",
+              fontStyle: "bold",
+            })
+            .setOrigin(0.5)
+          letterText.setShadow(1, 1, 2, 0x000000, true)
+          square.setData("letterText", letterText)
+
+          this.gameState.revealedLetters.push(result.letter)
+          this.revealedText.setText(this.gameState.revealedLetters.join("").toUpperCase())
+
+          if (this.gameState.currentRow === 3) {
+            this.gameState.gameStatus = "won"
+            this.statusText.setText("🎉 YOU WIN!")
+            this.statusText.setColor("#66C800")
+            this.statusText.setVisible(true)
+
+            this.createCelebration()
+          } else {
+            this.gameState.currentRow++
+            this.statusText.setText(`Find "${LETTERS[this.gameState.currentRow].toUpperCase()}"`)
+            this.statusText.setColor("#C0C0C0")
+            this.statusText.setVisible(true)
+            this.highlightCurrentRow()
+          }
         }
+      } catch (error) {
+        console.error('Click error:', error)
+        // Revert the square state on error
+        square.setFillStyle(0xFFD700)
+        square.setData("revealed", false)
+      } finally {
+        this.isProcessingClick = false
       }
 
       this.notifyStateChange()
     }
 
     revealAllSquares() {
+      // After game over, just fade out unrevealed squares
+      // We don't reveal actual positions since they're server-side only
       for (let rowIndex = 0; rowIndex < this.squares.length; rowIndex++) {
         for (let i = 0; i < this.squares[rowIndex].length; i++) {
           const square = this.squares[rowIndex][i]
-          const content = this.squareContents[rowIndex][i]
           
           if (!square.getData("revealed")) {
             const questionMark = square.getData("questionMark") as Phaser.GameObjects.Text
             if (questionMark) questionMark.destroy()
 
-            if (content === "skull") {
-              square.setFillStyle(0xFC401F)
-              this.add
-                .text(square.x, square.y, "💀", {
-                  fontSize: "32px",
-                  fontFamily: "Montserrat",
-                })
-                .setOrigin(0.5)
-                .setAlpha(0.5)
-            } else {
-              // Gold background (same as unopened) with blue letter (when revealing all)
-              square.setFillStyle(0xFFD700)
-              square.setStrokeStyle(2, 0x00FF7F)
-              square.setAlpha(0.7) // Slightly fade the square but keep letter visible
-              const letter = this.add
-                .text(square.x, square.y, content.toUpperCase(), {
-                  fontSize: "24px",
-                  color: "#0000FF",
-                  fontFamily: "Montserrat",
-                  fontStyle: "bold",
-                })
-                .setOrigin(0.5)
-              // No alpha on letter - keep it fully visible blue
-              letter.setShadow(1, 1, 2, 0x000000, true)
-            }
+            // Fade out unrevealed squares
+            square.setFillStyle(0x666666)
+            square.setAlpha(0.5)
           }
         }
       }
@@ -427,23 +417,25 @@ export function BaseGame() {
   const containerRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const isInitializingRef = useRef(false)
+  const currentTicketIdRef = useRef<string | null>(null)
   const [gameState, setGameState] = useState<GameState>({
     currentRow: 0,
     gameStatus: "idle",
     revealedLetters: [],
     rowSizes: [...DEFAULT_ROW_SIZES],
-    letterPositions: [],
   })
   const [phaserLoaded, setPhaserLoaded] = useState(false)
   const [flowState, setFlowState] = useState<GameFlowState>("initial")
   const [showTicketModal, setShowTicketModal] = useState(false)
   const [localTicketCount, setLocalTicketCount] = useState(0)
+  const [backendError, setBackendError] = useState<string | null>(null)
 
   // Game contract hook
   const {
     isConnected,
     isWalletReady,
     isConnecting,
+    address,
     prizePool,
     ticketCount,
     currentTicket,
@@ -475,12 +467,35 @@ export function BaseGame() {
 
   // Handle game state changes (won/lost)
   useEffect(() => {
-    if (gameState.gameStatus === "won" && currentTicket && flowState === "playing") {
-      setFlowState("won")
-      requestWinSignature(currentTicket.ticketId, currentTicket.prizeSnapshot)
-    } else if (gameState.gameStatus === "lost" && flowState === "playing") {
-      setFlowState("lost")
+    const handleGameEnd = async () => {
+      if (gameState.gameStatus === "won" && currentTicket && flowState === "playing") {
+        setFlowState("won")
+        // Call backend to get win signature
+        try {
+          setBackendError(null)
+          const ticketId = currentTicketIdRef.current
+          if (!ticketId) {
+            throw new Error('No ticket ID for finish')
+          }
+          const finishResult = await backendApi.finish(ticketId)
+          if (finishResult.success && finishResult.nonce && finishResult.expiresAt && finishResult.signature) {
+            requestWinSignature(currentTicket.ticketId, currentTicket.prizeSnapshot, {
+              nonce: finishResult.nonce,
+              expiresAt: finishResult.expiresAt,
+              signature: finishResult.signature
+            })
+          } else {
+            setBackendError('Failed to get win signature from backend')
+          }
+        } catch (err: any) {
+          console.error('Finish error:', err)
+          setBackendError(err.message || 'Failed to verify win')
+        }
+      } else if (gameState.gameStatus === "lost" && flowState === "playing") {
+        setFlowState("lost")
+      }
     }
+    handleGameEnd()
   }, [gameState.gameStatus, currentTicket, flowState, requestWinSignature])
 
   // Handle transaction confirmations
@@ -492,12 +507,30 @@ export function BaseGame() {
           setFlowState("ready_to_play")
           // Immediately update local count optimistically
           await refetchAttemptBalance()
-        } else if (flowState === "starting_attempt" && currentTicket) {
-          setFlowState("playing")
-          // Decrement local ticket count immediately
-          setLocalTicketCount(prev => Math.max(0, prev - 1))
-          const scene = gameRef.current?.scene.getScene("MainScene") as any
-          scene?.startGame()
+        } else if (flowState === "starting_attempt" && currentTicket && address) {
+          // Store ticket ID for backend calls
+          const ticketIdStr = currentTicket.ticketId.toString()
+          currentTicketIdRef.current = ticketIdStr
+          
+          // Start game session on backend
+          try {
+            setBackendError(null)
+            await backendApi.startGame(
+              ticketIdStr,
+              address,
+              currentTicket.prizeSnapshot.toString()
+            )
+            
+            setFlowState("playing")
+            // Decrement local ticket count immediately
+            setLocalTicketCount(prev => Math.max(0, prev - 1))
+            const scene = gameRef.current?.scene.getScene("MainScene") as any
+            scene?.startGame()
+          } catch (err: any) {
+            console.error('Backend start error:', err)
+            setBackendError(err.message || 'Failed to start game on backend')
+            setFlowState("ready_to_play")
+          }
         } else if (flowState === "claiming") {
           setFlowState("claimed")
           // Refetch prize pool immediately after claim
@@ -506,7 +539,7 @@ export function BaseGame() {
       }
     }
     handleConfirmation()
-  }, [isConfirmed, txHash, flowState, currentTicket, refetchAttemptBalance, refetchPrizePool])
+  }, [isConfirmed, txHash, flowState, currentTicket, address, refetchAttemptBalance, refetchPrizePool])
 
   // Initialize Phaser
   useEffect(() => {
@@ -561,7 +594,21 @@ export function BaseGame() {
         }
 
         gameRef.current = new Phaser.Game(config)
-        gameRef.current.scene.start("MainScene", { onGameStateChange: setGameState })
+        // Pass both game state change handler and click handler
+        gameRef.current.scene.start("MainScene", { 
+          onGameStateChange: setGameState,
+          onSquareClick: async (row: number, col: number) => {
+            const ticketId = currentTicketIdRef.current
+            if (!ticketId) {
+              throw new Error('No ticket ID')
+            }
+            const response = await backendApi.click(ticketId, row, col)
+            return {
+              result: response.result,
+              letter: response.letter
+            }
+          }
+        })
         setPhaserLoaded(true)
         isInitializingRef.current = false
       } else if (typeof Phaser === "undefined") {
@@ -675,6 +722,10 @@ export function BaseGame() {
     const scene = gameRef.current?.scene.getScene("MainScene") as any
     scene?.resetGame()
     resetContractGame()
+    
+    // Clear backend state
+    currentTicketIdRef.current = null
+    setBackendError(null)
     
     // Refetch actual ticket count and prize pool from contract
     const [ticketResult] = await Promise.all([
@@ -839,7 +890,7 @@ export function BaseGame() {
       </div>
 
       {/* Error Display - Casino Style */}
-      {error && (
+      {(error || backendError) && (
         <div 
           className="mx-3 mb-2 px-3 py-2 rounded-lg text-sm text-center border border-red-500"
           style={{ 
@@ -849,7 +900,7 @@ export function BaseGame() {
             boxShadow: '0 0 15px rgba(198, 40, 40, 0.5)'
           }}
         >
-          {error}
+          {error || backendError}
         </div>
       )}
 

@@ -217,42 +217,23 @@ export function useGameContract() {
     }
   }, [writeError])
 
-  // Request win signature from backend
-  const requestWinSignature = useCallback(async (ticketId: bigint, prizeSnapshot: bigint) => {
+  // Request win signature from backend (called after backend confirms win)
+  const requestWinSignature = useCallback(async (ticketId: bigint, prizeSnapshot: bigint, signatureData: { nonce: string, expiresAt: string, signature: string }) => {
     if (!address) return null
 
     try {
-      const response = await fetch('/api/sign-win', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          player: address,
-          ticketId: ticketId.toString(),
-          prizeSnapshot: prizeSnapshot.toString(),
-        }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to get win signature')
-      }
-
-      const data = await response.json()
-      
       setClaimData({
         ticketId,
         prizeSnapshot,
-        nonce: BigInt(data.nonce),
-        expiresAt: BigInt(data.expiresAt),
-        signature: data.signature as `0x${string}`,
+        nonce: BigInt(signatureData.nonce),
+        expiresAt: BigInt(signatureData.expiresAt),
+        signature: signatureData.signature as `0x${string}`,
       })
 
-      return data
+      return signatureData
     } catch (err: any) {
-      console.error('Request win signature error:', err)
-      setError(err?.message || 'Failed to get win signature')
+      console.error('Set claim data error:', err)
+      setError(err?.message || 'Failed to set claim data')
       return null
     }
   }, [address])
