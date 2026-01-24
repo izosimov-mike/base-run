@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { sdk } from '@farcaster/miniapp-sdk'
 import { useGameContract } from "@/hooks/useGameContract"
-import { backendApi } from "@/lib/backend-api"
+import { backendApi, type RevealItem } from "@/lib/backend-api"
 
 declare global {
   var Phaser: any
@@ -24,7 +24,11 @@ interface GameState {
 }
 
 // Click handler type - returns result from backend
-type ClickHandler = (row: number, col: number) => Promise<{ result: 'hit' | 'miss' | 'bot_detected', letter?: string }>
+type ClickHandler = (row: number, col: number) => Promise<{
+  result: 'hit' | 'miss' | 'bot_detected'
+  letter?: string
+  reveal?: RevealItem[]
+}>
 
 type GameFlowState = 
   | "initial"
@@ -274,21 +278,23 @@ function createMainScene(Phaser: any) {
         const result = await this.onSquareClick(rowIndex, squareIndex)
         
         if (result.result === 'miss' || result.result === 'bot_detected') {
-          // Wrong square - game over
-          square.setFillStyle(0xFC401F)
-          this.add
-            .text(square.x, square.y, "💀", {
-              fontSize: "32px",
-              fontFamily: "Montserrat",
-            })
-            .setOrigin(0.5)
-
           this.gameState.gameStatus = "lost"
           this.statusText.setText(result.result === 'bot_detected' ? "🤖 BOT DETECTED!" : "💀 GAME OVER!")
           this.statusText.setColor("#FC401F")
           this.statusText.setVisible(true)
 
-          this.revealAllSquares()
+          if (result.reveal && result.reveal.length > 0) {
+            this.revealAllSquaresWithLayout(result.reveal)
+          } else {
+            square.setFillStyle(0xFC401F)
+            this.add
+              .text(square.x, square.y, "💀", {
+                fontSize: "32px",
+                fontFamily: "Montserrat",
+              })
+              .setOrigin(0.5)
+            this.revealAllSquares()
+          }
         } else if (result.result === 'hit' && result.letter) {
           // Correct click - show letter
           square.setFillStyle(0xFFD700)
@@ -335,8 +341,7 @@ function createMainScene(Phaser: any) {
     }
 
     revealAllSquares() {
-      // After game over, just fade out unrevealed squares
-      // We don't reveal actual positions since they're server-side only
+      // Fallback when no reveal from backend: fade out unrevealed squares
       for (let rowIndex = 0; rowIndex < this.squares.length; rowIndex++) {
         for (let i = 0; i < this.squares[rowIndex].length; i++) {
           const square = this.squares[rowIndex][i]
@@ -345,9 +350,57 @@ function createMainScene(Phaser: any) {
             const questionMark = square.getData("questionMark") as Phaser.GameObjects.Text
             if (questionMark) questionMark.destroy()
 
-            // Fade out unrevealed squares
             square.setFillStyle(0x666666)
             square.setAlpha(0.5)
+          }
+        }
+      }
+    }
+
+    /** Game over: show full board from backend reveal (letters + skulls) */
+    revealAllSquaresWithLayout(reveal: RevealItem[]) {
+      for (const r of reveal) {
+        const row = r.row
+        const size = r.size
+        const letterIndex = r.letterIndex
+        const letter = r.letter
+
+        if (row < 0 || row >= this.squares.length) continue
+        const rowSquares = this.squares[row]
+        if (!rowSquares || rowSquares.length !== size) continue
+
+        for (let col = 0; col < size; col++) {
+          const sq = rowSquares[col]
+          const questionMark = sq.getData("questionMark") as Phaser.GameObjects.Text
+          if (questionMark) questionMark.destroy()
+          const letterText = sq.getData("letterText") as Phaser.GameObjects.Text
+          if (letterText) letterText.destroy()
+
+          const isLetter = col === letterIndex
+
+          if (isLetter) {
+            sq.setFillStyle(0xFFD700)
+            sq.setStrokeStyle(2, 0x00FF7F)
+            sq.setAlpha(1)
+            const txt = this.add
+              .text(sq.x, sq.y, letter.toUpperCase(), {
+                fontSize: "24px",
+                color: "#0000FF",
+                fontFamily: "Montserrat",
+                fontStyle: "bold",
+              })
+              .setOrigin(0.5)
+            txt.setShadow(1, 1, 2, 0x000000, true)
+            sq.setData("letterText", txt)
+          } else {
+            sq.setFillStyle(0xFC401F)
+            sq.setAlpha(1)
+            this.add
+              .text(sq.x, sq.y, "💀", {
+                fontSize: "32px",
+                fontFamily: "Montserrat",
+              })
+              .setOrigin(0.5)
           }
         }
       }
@@ -608,7 +661,8 @@ export function BaseGame() {
             const response = await backendApi.click(ticketId, row, col)
             return {
               result: response.result,
-              letter: response.letter
+              letter: response.letter,
+              reveal: response.reveal
             }
           }
         })
@@ -678,10 +732,7 @@ export function BaseGame() {
     try {
       await sdk.actions.composeCast({
         text: "Ready to test your instinct? Build your Base way. Beat the challenge.",
-        embeds: [
-          "https://base-run.vercel.app",
-          "https://base-run.vercel.app/promo.png"
-        ]
+        embeds: ["https://base-run.vercel.app"]
       })
     } catch (error) {
       console.error('Failed to share:', error)

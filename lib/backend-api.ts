@@ -22,6 +22,13 @@ export interface StartGameResponse {
   error?: string
 }
 
+export interface RevealItem {
+  row: number
+  size: number
+  letterIndex: number
+  letter: string
+}
+
 export interface ClickResponse {
   result: 'hit' | 'miss' | 'bot_detected'
   letter?: string
@@ -30,6 +37,8 @@ export interface ClickResponse {
   gameStatus: 'playing' | 'won' | 'lost'
   message?: string
   error?: string
+  /** Full board layout on miss (game over) */
+  reveal?: RevealItem[]
 }
 
 export interface FinishResponse {
