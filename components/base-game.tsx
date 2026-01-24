@@ -383,24 +383,6 @@ function createMainScene(Phaser: any) {
       }
     }
 
-    shuffle() {
-      if (this.gameState.gameStatus === "playing") return
-
-      const shuffledSizes = Phaser.Utils.Array.Shuffle([...DEFAULT_ROW_SIZES])
-      this.gameState.rowSizes = shuffledSizes
-      this.gameState.currentRow = 0
-      this.gameState.gameStatus = "idle"
-      this.gameState.revealedLetters = []
-
-      if (this.revealedText) this.revealedText.setText("")
-      if (this.statusText) {
-        this.statusText.setVisible(false)
-        this.statusText.setText("")
-      }
-
-      this.setupGame()
-    }
-
     startGame() {
       this.gameState.currentRow = 0
       this.gameState.gameStatus = "playing"
@@ -640,29 +622,24 @@ export function BaseGame() {
     setTimeout(() => sparkleContainer.remove(), 600)
   }, [])
 
-  // Handlers
-  const handleShuffle = useCallback((e: React.MouseEvent) => {
-    if (gameState.gameStatus === "playing" || !phaserLoaded) return
-    createSparkles(e.clientX, e.clientY)
-    const scene = gameRef.current?.scene.getScene("MainScene") as any
-    scene?.shuffle()
-  }, [gameState.gameStatus, phaserLoaded, createSparkles])
-
-  // Share game result via Farcaster composeCast
+  // Share game via Farcaster composeCast
   const handleShare = useCallback(async (e: React.MouseEvent) => {
     createSparkles(e.clientX, e.clientY)
     try {
       await sdk.actions.composeCast({
         text: "Ready to test your instinct? Build your Base way. Beat the challenge.",
-        embeds: ["https://base-run.vercel.app"]
+        embeds: [
+          "https://base-run.vercel.app",
+          "https://base-run.vercel.app/promo.png"
+        ]
       })
     } catch (error) {
       console.error('Failed to share:', error)
     }
   }, [createSparkles])
 
-  // Check if game is in shareable state (won or lost)
-  const isShareableState = flowState === "won" || flowState === "lost" || flowState === "claimed" || flowState === "claiming"
+  // Check if game ended (for blinking Share button)
+  const isGameEnded = flowState === "won" || flowState === "lost" || flowState === "claimed" || flowState === "claiming"
 
   const handlePlayClick = useCallback(() => {
     if (!phaserLoaded || !isWalletReady) return
@@ -821,24 +798,24 @@ export function BaseGame() {
       {/* Control Buttons */}
       <div className="flex gap-4 justify-center px-3 py-3 flex-shrink-0">
         <button
-          onClick={isShareableState ? handleShare : handleShuffle}
-          disabled={!phaserLoaded || (!isShareableState && (gameState.gameStatus === "playing" || flowState === "playing"))}
-          className={`py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105 ${isShareableState ? 'animate-pulse' : ''}`}
+          onClick={handleShare}
+          disabled={!phaserLoaded}
+          className={`py-4 text-[18px] font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:scale-105 ${isGameEnded ? 'animate-pulse' : ''}`}
           style={{ 
             width: '160px',
-            background: isShareableState 
+            background: isGameEnded 
               ? 'linear-gradient(135deg, #FFD700, #FFA500)' 
               : 'linear-gradient(135deg, #00BFFF, #0099CC)',
-            color: isShareableState ? '#000000' : '#FFFFFF',
-            boxShadow: isShareableState
+            color: isGameEnded ? '#000000' : '#FFFFFF',
+            boxShadow: isGameEnded
               ? '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4)'
               : '0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4)',
-            textShadow: isShareableState 
+            textShadow: isGameEnded 
               ? '0 0 5px rgba(255, 255, 255, 0.5)' 
               : '0 0 10px rgba(255, 255, 255, 0.8)'
           }}
         >
-          {isShareableState ? 'Share' : 'Shuffle'}
+          Share
         </button>
         
         <button
