@@ -8,44 +8,29 @@ import './globals.css'
 // Mini App embed configuration
 const miniAppEmbed = {
   version: "1",
-  imageUrl: "https://base-run.vercel.app/background.png",
+  imageUrl: "https://base-run.vercel.app/embed.png",
   button: {
-    title: "▶️ Play Now",
+    title: "Find your Base way",
     action: {
       type: "launch_miniapp",
       name: "Base Run",
       url: "https://base-run.vercel.app",
-      splashImageUrl: "https://base-run.vercel.app/icon.svg",
+      splashImageUrl: "https://base-run.vercel.app/icon.png",
       splashBackgroundColor: "#eef0f3"
     }
   }
 }
 
 export const metadata: Metadata = {
-  title: 'B.A.S.E. Run',
-  description: 'Find the hidden letters B, A, S, E to win! A fun Phaser-based puzzle game on Farcaster.',
-  generator: 'v0.app',
+  title: 'Base Run',
+  description: 'Find the hidden letters B, A, S, E to win! A fun puzzle game on Farcaster.',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/icon.png',
   },
   openGraph: {
-    title: 'B.A.S.E. Run',
+    title: 'Base Run',
     description: 'Find the hidden letters B, A, S, E to win! A fun puzzle game on Farcaster.',
-    images: ['/background.png'],
+    images: ['/embed.png'],
   },
   other: {
     'fc:miniapp': JSON.stringify(miniAppEmbed),
