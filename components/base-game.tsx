@@ -731,7 +731,7 @@ export function BaseGame() {
     createSparkles(e.clientX, e.clientY)
     try {
       await sdk.actions.composeCast({
-        text: "Ready to test your instinct? Build your Base way. Beat the challenge.",
+        text: "Trust your instinct. Find your Base way. Beat the challenge.",
         embeds: ["https://base-run.vercel.app"]
       })
     } catch (error) {
