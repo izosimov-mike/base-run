@@ -4,7 +4,7 @@ import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { Attribution } from 'ox/erc8021'
 
 // ERC-8021 Builder Code data suffix for onchain attribution
-const DATA_SUFFIX = Attribution.toDataSuffix({
+export const DATA_SUFFIX = Attribution.toDataSuffix({
   codes: ['bc_grrqwduu'],
 })
 

@@ -1,9 +1,9 @@
 "use client"
 
 import { useCallback, useState, useEffect } from 'react'
-import { 
-  useAccount, 
-  useReadContract, 
+import {
+  useAccount,
+  useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
   useSwitchChain,
@@ -11,6 +11,7 @@ import {
 } from 'wagmi'
 import { parseEther, formatEther, decodeEventLog } from 'viem'
 import { GAME_CONTRACT_ADDRESS, GAME_CONTRACT_ABI, BASE_CHAIN_ID } from '@/lib/contract'
+import { DATA_SUFFIX } from '@/lib/wagmi-config'
 
 export interface GameTicket {
   ticketId: bigint
@@ -29,10 +30,10 @@ export function useGameContract() {
   const { address, isConnected, isConnecting } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
-  
+
   // Check if wallet is fully ready (connected and not in connecting state)
   const isWalletReady = isConnected && !isConnecting && !!address
-  
+
   const [currentTicket, setCurrentTicket] = useState<GameTicket | null>(null)
   const [claimData, setClaimData] = useState<ClaimData | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -59,17 +60,17 @@ export function useGameContract() {
   })
 
   // Write contract hook
-  const { 
-    writeContract, 
-    data: txHash, 
+  const {
+    writeContract,
+    data: txHash,
     isPending: isWritePending,
     error: writeError,
     reset: resetWrite
   } = useWriteContract()
 
   // Wait for transaction receipt
-  const { 
-    isLoading: isConfirming, 
+  const {
+    isLoading: isConfirming,
     isSuccess: isConfirmed,
     data: txReceipt
   } = useWaitForTransactionReceipt({
@@ -108,15 +109,15 @@ export function useGameContract() {
         return false
       }
 
-      const functionName = amount === 1 
-        ? 'buyAttempt' 
-        : amount === 10 
-          ? 'buyAttempts10' 
+      const functionName = amount === 1
+        ? 'buyAttempt'
+        : amount === 10
+          ? 'buyAttempts10'
           : 'buyAttempts50'
-      
-      const value = amount === 1 
+
+      const value = amount === 1
         ? parseEther('0.00005')
-        : amount === 10 
+        : amount === 10
           ? parseEther('0.0005')
           : parseEther('0.0025')
 
@@ -126,6 +127,7 @@ export function useGameContract() {
         functionName,
         value,
         chainId: BASE_CHAIN_ID,
+        dataSuffix: DATA_SUFFIX,
       })
 
       return true
@@ -161,6 +163,7 @@ export function useGameContract() {
         abi: GAME_CONTRACT_ABI,
         functionName: 'startAttempt',
         chainId: BASE_CHAIN_ID,
+        dataSuffix: DATA_SUFFIX,
       })
 
       return true
@@ -183,12 +186,12 @@ export function useGameContract() {
             data: log.data,
             topics: log.topics,
           })
-          
+
           if (decoded.eventName === 'AttemptStarted') {
-            const { ticketId, snapshot } = decoded.args as { 
+            const { ticketId, snapshot } = decoded.args as {
               player: `0x${string}`
               ticketId: bigint
-              snapshot: bigint 
+              snapshot: bigint
             }
             setCurrentTicket({
               ticketId,
@@ -267,6 +270,7 @@ export function useGameContract() {
           claimData.signature,
         ],
         chainId: BASE_CHAIN_ID,
+        dataSuffix: DATA_SUFFIX,
       })
 
       return true
@@ -303,7 +307,7 @@ export function useGameContract() {
     isProcessing: isProcessing || isWritePending || isConfirming,
     isConfirmed,
     error,
-    
+
     // Actions
     buyTickets,
     startAttempt,
@@ -312,7 +316,7 @@ export function useGameContract() {
     resetGame,
     refetchPrizePool,
     refetchAttemptBalance,
-    
+
     // Transaction state
     txHash,
   }
