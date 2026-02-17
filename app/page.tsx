@@ -38,7 +38,7 @@ export default function Home() {
   }, [isSDKLoaded, isConnected, connectors, connect])
 
   return (
-    <main className="w-full h-screen overflow-hidden" style={{ background: 'linear-gradient(to bottom, #121212, #0D47A1)' }}>
+    <main className="w-full h-screen overflow-hidden" style={{ background: '#1d1324' }}>
       <BaseGame />
     </main>
   )

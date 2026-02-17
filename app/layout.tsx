@@ -10,26 +10,26 @@ const miniAppEmbed = {
   version: "1",
   imageUrl: "https://base-run.vercel.app/embed.png",
   button: {
-    title: "Find your Base way",
+    title: "Find your BETR way",
     action: {
       type: "launch_miniapp",
-      name: "Base Run",
+      name: "BETR Run",
       url: "https://base-run.vercel.app",
       splashImageUrl: "https://base-run.vercel.app/icon.png",
-      splashBackgroundColor: "#eef0f3"
+      splashBackgroundColor: "#1d1324"
     }
   }
 }
 
 export const metadata: Metadata = {
-  title: 'Base Run',
-  description: 'Find the hidden letters B, A, S, E to win! A fun puzzle game on Farcaster.',
+  title: 'BETR Run',
+  description: 'Find the hidden letters B, E, T, R to win! A fun puzzle game on Farcaster.',
   icons: {
     icon: '/icon.png',
   },
   openGraph: {
-    title: 'Base Run',
-    description: 'Find the hidden letters B, A, S, E to win! A fun puzzle game on Farcaster.',
+    title: 'BETR Run',
+    description: 'Find the hidden letters B, E, T, R to win! A fun puzzle game on Farcaster.',
     images: ['/embed.png'],
   },
   other: {

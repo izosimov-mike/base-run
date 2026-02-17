@@ -174,14 +174,14 @@
 }
 
 /* Glow effect for buttons */
-.glow-neon-blue {
-  box-shadow: 0 0 20px rgba(0, 191, 255, 0.6), 0 0 40px rgba(0, 191, 255, 0.4), 0 0 60px rgba(0, 191, 255, 0.2);
+.glow-neon-magenta {
+  box-shadow: 0 0 20px rgba(239, 71, 193, 0.6), 0 0 40px rgba(239, 71, 193, 0.4), 0 0 60px rgba(239, 71, 193, 0.2);
 }
 
-.glow-neon-red {
-  box-shadow: 0 0 20px rgba(255, 65, 54, 0.6), 0 0 40px rgba(255, 65, 54, 0.4), 0 0 60px rgba(255, 65, 54, 0.2);
+.glow-neon-pink {
+  box-shadow: 0 0 20px rgba(231, 66, 174, 0.6), 0 0 40px rgba(231, 66, 174, 0.4), 0 0 60px rgba(231, 66, 174, 0.2);
 }
 
-.glow-gold {
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.4);
+.glow-teal {
+  box-shadow: 0 0 20px rgba(143, 234, 238, 0.6), 0 0 40px rgba(143, 234, 238, 0.4);
 }
