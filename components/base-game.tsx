@@ -108,6 +108,7 @@ function createMainScene(Phaser: any) {
           fontSize: "28px",
           color: "#69e3f1",
           fontFamily: "Montserrat",
+          fontStyle: "bold",
         })
         .setOrigin(0.5)
 
@@ -865,17 +866,32 @@ export function BaseGame() {
     >
       {/* Header with Prize Pool and Tickets */}
       <div className="flex justify-between items-center px-3 py-2 flex-shrink-0">
-        {/* Prize Pool - Neon teal text with magenta glow */}
+        {/* Prize Pool - Full neon effect */}
         <div
-          className="rounded-lg px-4 py-2 shadow-lg border-2"
+          className="rounded-lg px-4 py-2"
           style={{
             background: 'rgba(29, 19, 36, 0.9)',
-            borderColor: '#ef47c1',
-            boxShadow: '0 0 15px rgba(239, 71, 193, 0.6), 0 0 30px rgba(239, 71, 193, 0.3)'
+            border: '3px solid #ef47c1',
+            borderRadius: '12px',
+            boxShadow: '0 0 10px #ef47c1, 0 0 20px #ef47c1, 0 0 40px #ef47c1, inset 0 0 15px rgba(239, 71, 193, 0.4)'
           }}
         >
-          <div className="text-[16px] uppercase tracking-wide font-bold" style={{ color: '#8feaee', textShadow: '0 0 10px rgba(143, 234, 238, 0.8), 0 0 20px rgba(56, 153, 170, 0.5)' }}>Prize Pool</div>
-          <div className="text-[22px] font-bold" style={{ color: '#8feaee', textShadow: '0 0 8px rgba(143, 234, 238, 0.6)' }}>
+          <div
+            className="text-[16px] uppercase tracking-wide font-bold"
+            style={{
+              color: 'transparent',
+              WebkitTextStroke: '1.5px #8feaee',
+              textShadow: '0 0 8px rgba(143, 234, 238, 0.9), 0 0 20px rgba(143, 234, 238, 0.7), 0 0 40px rgba(56, 153, 170, 0.5)'
+            }}
+          >Prize Pool</div>
+          <div
+            className="text-[22px] font-bold"
+            style={{
+              color: 'transparent',
+              WebkitTextStroke: '1.5px #8feaee',
+              textShadow: '0 0 8px rgba(143, 234, 238, 0.9), 0 0 20px rgba(143, 234, 238, 0.7), 0 0 40px rgba(56, 153, 170, 0.5)'
+            }}
+          >
             {parseFloat(prizePool).toFixed(5)} ETH
           </div>
         </div>
@@ -1046,7 +1062,7 @@ export function BaseGame() {
                 setShowTicketModal(false)
                 if (flowState === "buy_tickets") setFlowState("initial")
               }}
-              className="mt-4 w-full py-2 font-medium rounded-xl transition-all hover:scale-105"
+              className="mt-4 w-full py-2 font-bold rounded-xl transition-all hover:scale-105"
               style={{
                 background: 'rgba(56, 153, 170, 0.3)',
                 color: '#f7dfef',
