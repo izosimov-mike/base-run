@@ -74,7 +74,7 @@ function createMainScene(Phaser: any) {
           fontSize: "42px",
           color: "#69e3f1",
           fontFamily: "Montserrat",
-          fontStyle: "bold",
+          fontStyle: "900",
         })
         .setOrigin(0.5)
       title.setShadow(2, 2, 4, 0x000000, true)
