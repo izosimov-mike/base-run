@@ -879,17 +879,15 @@ export function BaseGame() {
           <div
             className="text-[16px] uppercase tracking-wide font-bold"
             style={{
-              color: 'transparent',
-              WebkitTextStroke: '1.5px #8feaee',
-              textShadow: '0 0 8px rgba(143, 234, 238, 0.9), 0 0 20px rgba(143, 234, 238, 0.7), 0 0 40px rgba(56, 153, 170, 0.5)'
+              color: '#8feaee',
+              textShadow: '0 0 7px #8feaee, 0 0 15px #8feaee, 0 0 30px #3899aa, 0 0 50px #3899aa'
             }}
           >Prize Pool</div>
           <div
             className="text-[22px] font-bold"
             style={{
-              color: 'transparent',
-              WebkitTextStroke: '1.5px #8feaee',
-              textShadow: '0 0 8px rgba(143, 234, 238, 0.9), 0 0 20px rgba(143, 234, 238, 0.7), 0 0 40px rgba(56, 153, 170, 0.5)'
+              color: '#8feaee',
+              textShadow: '0 0 7px #8feaee, 0 0 15px #8feaee, 0 0 30px #3899aa, 0 0 50px #3899aa'
             }}
           >
             {parseFloat(prizePool).toFixed(5)} ETH
