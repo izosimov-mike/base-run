@@ -880,6 +880,7 @@ export function BaseGame() {
             className="text-[16px] uppercase tracking-wide font-bold"
             style={{
               color: '#8feaee',
+              fontWeight: 900,
               textShadow: '0 0 7px #8feaee, 0 0 15px #8feaee, 0 0 30px #3899aa, 0 0 50px #3899aa'
             }}
           >Prize Pool</div>
@@ -887,6 +888,7 @@ export function BaseGame() {
             className="text-[22px] font-bold"
             style={{
               color: '#8feaee',
+              fontWeight: 900,
               textShadow: '0 0 7px #8feaee, 0 0 15px #8feaee, 0 0 30px #3899aa, 0 0 50px #3899aa'
             }}
           >
