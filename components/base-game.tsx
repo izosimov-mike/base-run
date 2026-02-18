@@ -85,7 +85,7 @@ function createMainScene(Phaser: any) {
           fontSize: "18px",
           color: "#FFFFFF",
           fontFamily: "Montserrat",
-          fontStyle: "bold",
+          fontStyle: "900",
         })
         .setOrigin(0.5)
         .setVisible(false)
@@ -97,7 +97,7 @@ function createMainScene(Phaser: any) {
           fontSize: "36px",
           color: "#8feaee",
           fontFamily: "Montserrat",
-          fontStyle: "bold",
+          fontStyle: "900",
         })
         .setOrigin(0.5)
       this.revealedText.setShadow(2, 2, 4, 0x3899aa, true)
@@ -108,7 +108,7 @@ function createMainScene(Phaser: any) {
           fontSize: "28px",
           color: "#69e3f1",
           fontFamily: "Montserrat",
-          fontStyle: "bold",
+          fontStyle: "900",
         })
         .setOrigin(0.5)
 
@@ -305,7 +305,7 @@ function createMainScene(Phaser: any) {
               fontSize: "24px",
               color: "#8feaee",
               fontFamily: "Montserrat",
-              fontStyle: "bold",
+              fontStyle: "900",
             })
             .setOrigin(0.5)
           letterText.setShadow(1, 1, 3, 0x3899aa, true)
@@ -388,7 +388,7 @@ function createMainScene(Phaser: any) {
                 fontSize: "24px",
                 color: "#8feaee",
                 fontFamily: "Montserrat",
-                fontStyle: "bold",
+                fontStyle: "900",
               })
               .setOrigin(0.5)
             txt.setShadow(1, 1, 3, 0x3899aa, true)
